@@ -14,7 +14,7 @@ app.get('/', function (req, res) {
 
 app.use('/api/users', userRoutes);
 
-const PORT = process.env.PORT || 3000;  // Changed port number and removed any semicolon
+const PORT =  3000;  // Changed port number and removed any semicolon
 
 app.listen(PORT, async () => {
     try {
