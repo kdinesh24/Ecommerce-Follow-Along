@@ -1,11 +1,11 @@
 import React from 'react';
 import { LogIn, ShoppingBag } from 'lucide-react';
-import "./App.css"
-import './index.css';
+import "./styles/App.css";
+import "./styles/index.css";
 
 function App() {
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); 
     // Login logic will be implemented in future milestones
   };
 

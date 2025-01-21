@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const connectDB = require('./database/database');
+const connectDB = require('./config/database');
 const userRoutes = require('./routes/user.routes');
 const dotenv = require('dotenv');
 dotenv.config();
