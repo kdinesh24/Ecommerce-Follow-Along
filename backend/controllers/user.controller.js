@@ -1,24 +1,30 @@
-const User = require("../models/user.model")
+const User = require('../models/user.model');
+const bcrypt = require('bcrypt');
 
-const signup = async (req, res) => {
+const signup = async function(req, res) {
     try {
-        const { name, email, password, dob } = req.body;
-        const user = await User.findOne({ email });
-        if (user) {
-            return res.status(400).send("User already exists");
+        const { email, password } = req.body;
+
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ msg: 'User already exists' });
         }
+
+        // Hash the password before saving
+        const hashedPassword = await bcrypt.hash(password, 10);
+
         const newUser = new User({
             email,
-            password,
-            name,
-            dob
+            password: hashedPassword, // Store the hashed password
         });
+
         await newUser.save();
-        res.send({data:newUser})
-        res.status(201).send("User created successfully");
+        res.status(201).json({ msg: 'User created successfully', user: newUser });
+        
     } catch (error) {
-        res.status(500).send(error.message);
+        console.error('Signup error:', error);
+        res.status(500).json({ msg: 'Server Error', error: error.message });
     }
 }
 
-module.exports = { signup };  // Export as an object
+module.exports = { signup };

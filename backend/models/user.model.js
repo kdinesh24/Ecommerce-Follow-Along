@@ -16,12 +16,7 @@ function validateAge(dob) {
 }
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-        match: [/^[a-zA-Z0-9]+$/, "Please enter a valid name"],  // Fixed regex (removed extra space)
-    },
+
     email: {
         type: String,
         required: true,
