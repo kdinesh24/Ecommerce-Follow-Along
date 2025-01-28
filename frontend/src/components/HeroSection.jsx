@@ -15,11 +15,13 @@ const HeroSection = () => {
             Shop Now
           </a>
         </div>
-        <img
-          src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ-1nbi6Bey8qNFHKu-i_UqPkmHOeuh5o5iaYKz0jCt4rQH0PEhEPl5ByJzHc_JV6Za8E&usqp=CAU"
-          alt="Hero Image"
-          className="max-w-md rounded-2xl shadow-lg"
-        />
+        <div className="relative w-full max-w-md">
+          <img
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQ-1nbi6Bey8qNFHKu-i_UqPkmHOeuh5o5iaYKz0jCt4rQH0PEhEPl5ByJzHc_JV6Za8E&usqp=CAU"
+            alt="Hero Image"
+            className="w-full h-full object-cover rounded-2xl shadow-lg"
+          />
+        </div>
       </div>
     </div>
   );

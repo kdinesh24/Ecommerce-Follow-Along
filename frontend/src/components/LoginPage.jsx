@@ -16,10 +16,10 @@ const LoginPage = () => {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-10 space-y-8 transform transition duration-300 hover:shadow-4xl">
         <div className="text-center">
           <h2 className="mt-6 text-4xl font-bold text-black tracking-tight animate-pulse-soft">
-            Digital Horizon
+            Makers Vault
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Secure Access to Your Digital Experience
+            Secure Access to Your Experience
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">

@@ -10,11 +10,11 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-white/90 backdrop-blur-md shadow-sm z-50">
+    <nav className="fixed top-0 left-0 w-full bg-transparent shadow-sm z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <div className="flex items-center">
           <Link to="/ecommerce-follow-along/home" className="text-2xl font-bold text-gray-800 tracking-tight">
-            Digital Horizon
+          Makers Vault
           </Link>
         </div>
         <div className="hidden md:flex items-center space-x-6">

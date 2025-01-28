@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Heart } from 'lucide-react';
 
 const ProductCard = ({ name, price, image, description }) => {
