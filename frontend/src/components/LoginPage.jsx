@@ -11,6 +11,11 @@ const LoginPage = () => {
     navigate("/ecommerce-follow-along/home")
   }
 
+  const handleGoogleLogin = (e) => {
+    e.preventDefault()
+    window.location.href = 'http://localhost:3000/auth/google';
+  }
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-10 space-y-8 transform transition duration-300 hover:shadow-4xl">
@@ -22,6 +27,7 @@ const LoginPage = () => {
             Secure Access to Your Experience
           </p>
         </div>
+        
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
             <div>
@@ -53,20 +59,45 @@ const LoginPage = () => {
               />
             </div>
           </div>
+
           <div className="flex justify-end">
             <a href="#" className="text-sm text-black hover:underline transition duration-300">
               Forgot Password?
             </a>
           </div>
+
           <button
             type="submit"
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-300 transform hover:scale-105 active:scale-95"
           >
             Sign In
           </button>
+
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-300"
+          >
+            <img 
+              src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
+              alt="Google logo" 
+              className="w-5 h-5 mr-2"
+            />
+            Sign in with Google
+          </button>
+
           <div className="text-center">
             <span className="text-gray-600 text-sm">
-              Don't have an account?{" "}
+              Do not have an account?{" "}
               <a href="#" className="text-black hover:underline transition duration-300">
                 Sign Up
               </a>

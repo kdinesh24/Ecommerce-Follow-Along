@@ -12,7 +12,7 @@ const App = () => {
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<Navigate to="/ecommerce-follow-along" replace />} />
+        <Route path="/" element={<Navigate to="/ecommerce-follow-along" />} />
         <Route path="/ecommerce-follow-along" element={<LoginPage />} />
         <Route path="/ecommerce-follow-along/home" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
