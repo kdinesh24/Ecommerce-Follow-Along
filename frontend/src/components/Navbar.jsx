@@ -20,7 +20,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center space-x-6">
           <NavLink to="/ecommerce-follow-along/home">Home</NavLink>
           <NavLink to="/about">About</NavLink>
-          <NavLink to="/profile">Profile</NavLink>
+          <NavLink to="/ecommerce-follow-along/profile">Profile</NavLink>
           <CartIcon />
         </div>
         <div className="md:hidden flex items-center space-x-4">
@@ -42,7 +42,7 @@ const Navbar = () => {
             <NavLink to="/about" mobile>
               About
             </NavLink>
-            <NavLink to="/profile" mobile>
+            <NavLink to="/ecommerce-follow-along/profile" mobile>
               Profile
             </NavLink>
           </div>

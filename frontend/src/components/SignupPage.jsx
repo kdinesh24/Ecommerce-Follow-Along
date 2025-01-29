@@ -1,7 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-const LoginPage = () => {
+const SignupPage = () => {
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const navigate = useNavigate()
@@ -11,7 +12,7 @@ const LoginPage = () => {
     navigate("/ecommerce-follow-along/home")
   }
 
-  const handleGoogleLogin = (e) => {
+  const handleGoogleSignup = (e) => {
     e.preventDefault()
     window.location.href = 'http://localhost:3000/auth/google';
   }
@@ -24,12 +25,26 @@ const LoginPage = () => {
             Makers Vault
           </h2>
           <p className="mt-2 text-sm text-gray-600">
-            Secure Access to Your Experience
+            Create Your Account
           </p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-4">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="mt-2 block w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-black text-black placeholder-gray-500 transition duration-300"
+                placeholder="Enter your name"
+              />
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email Address
@@ -60,17 +75,11 @@ const LoginPage = () => {
             </div>
           </div>
 
-          <div className="flex justify-end">
-            <a href="#" className="text-sm text-black hover:underline transition duration-300">
-              Forgot Password?
-            </a>
-          </div>
-
           <button
             type="submit"
             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-lg text-sm font-semibold text-white bg-black hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-300 transform hover:scale-105 active:scale-95"
           >
-            Sign In
+            Sign Up
           </button>
 
           <div className="relative">
@@ -84,7 +93,7 @@ const LoginPage = () => {
 
           <button
             type="button"
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleSignup}
             className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black transition duration-300"
           >
             <img 
@@ -92,13 +101,13 @@ const LoginPage = () => {
               alt="Google logo" 
               className="w-5 h-5 mr-2"
             />
-            Sign in with Google
+            Sign up with Google
           </button>
 
           <div className="text-center">
             <span className="text-gray-600 text-sm">
-              Don't have an account?{" "}
-              <a onClick={() => navigate("/ecommerce-follow-along/signup")} className="text-black hover:underline transition duration-300 cursor-pointer">
+              Already have an account?{" "}
+              <a onClick={() => navigate("/ecommerce-follow-along")} className="text-black hover:underline transition duration-300 cursor-pointer">
                 Sign Up
               </a>
             </span>
@@ -109,4 +118,4 @@ const LoginPage = () => {
   )
 }
 
-export default LoginPage
+export default SignupPage

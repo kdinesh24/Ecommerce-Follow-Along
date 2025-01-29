@@ -1,26 +1,40 @@
-
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import LoginPage from './components/LoginPage';
-import HomePage from './components/HomePage';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import ProfilePage from './components/ProfilePage';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import Login from "./components/LoginPage";
+import Signup from "./components/SignupPage"; // Import SignupPage
+import Homepage from "./components/HomePage";
+import HeroSection from "./components/HeroSection";
+import Footer from "./components/Footer";
+import ProfilePage from "./components/ProfilePage";
+import Navbar from "./components/Navbar";
 import AboutPage from './components/AboutPage';
 
-const App = () => {
+function HomeLayout() {
+  return (
+    <div className="bg-gray-950">
+      <HeroSection />
+      <Homepage />
+    </div>
+  );
+}
+
+export default function App() {
   return (
     <Router>
-      <Navbar />
-      <Routes>
-        <Route path="/" element={<Navigate to="/ecommerce-follow-along" />} />
-        <Route path="/ecommerce-follow-along" element={<LoginPage />} />
-        <Route path="/ecommerce-follow-along/home" element={<HomePage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/about" element={<AboutPage />} />
-      </Routes>
-      <Footer />
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Navigate to="/ecommerce-follow-along" replace />} />
+            <Route path="/ecommerce-follow-along" element={<Login />} />
+            <Route path="/ecommerce-follow-along/signup" element={<Signup />} /> {/* Add this route */}
+            <Route path="/ecommerce-follow-along/home" element={<HomeLayout />} />
+            <Route path="/ecommerce-follow-along/profile" element={<ProfilePage />} />
+            <Route path="/about" element={<AboutPage />} />
+          </Routes>
+        </div>
+        <Footer />
+      </div>
     </Router>
   );
-};
-
-export default App;
+}

@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-const ProductCard = ({ name, price, image, inStock = true }) => {
+export default function ProductCard({ name, price, image, inStock = true }) {
   return (
     <div className="group relative flex flex-col">
       {/* Image Container */}
@@ -34,17 +34,14 @@ const ProductCard = ({ name, price, image, inStock = true }) => {
           </button>
         </div>
       </div>
-
       {/* Product Info */}
       <div className="mt-2 space-y-1 px-1">
         <h3 className="text-sm font-normal text-gray-900">{name}</h3>
-        <p className="text-sm font-normal text-gray-900">₹{price}</p>
+        <p className="text-sm font-normal text-gray-900">₹{price.toFixed(2)}</p>
         {!inStock && (
           <p className="text-xs text-gray-500">Out of stock</p>
         )}
       </div>
     </div>
   );
-};
-
-export default ProductCard; 
+}

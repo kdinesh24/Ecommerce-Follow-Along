@@ -1,8 +1,8 @@
 
 const HeroSection = () => {
   return (
-    <div className="bg-white py-32 p-20 mt-[-4rem]">
-      <div className="container mx-auto px-4 flex justify-between items-center">
+    <div className="bg-white py-28 p-20 mt-[-4rem]">
+      <div className="container mx-auto flex justify-between items-center">
         <div className="max-w-2xl">
           <h1 className="text-5xl font-bold mb-4">Elevate Your Style</h1>
           <p className="text-lg text-gray-600 mb-8">

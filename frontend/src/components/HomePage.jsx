@@ -1,59 +1,45 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import ProductCard from "./ProductCard";
 
-import HeroSection from './HeroSection';
-import ProductGrid from './ProductGrid';
+export default function Homepage() {
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
 
-const products = [
-  {
-    id: 1,
-    name: "Slim Fit Cotton Mesh Polo Shirt",
-    price: 150.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-1504821_lifestyle?$rl_4x5_zoom$",
-    description: "Elevate your casual style with this versatile polo shirt."
-  },
-  {
-    id: 2,
-    name: "Custom Slim Fit Mesh Polo Shirt",
-    price: 199.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-1164604_lifestyle?$rl_4x5_zoom$",
-    description: "Crafted with premium materials for a refined look."
-  },
-  {
-    id: 3,
-    name: "Custom Slim Fit Stretch Mesh Polo Shirt",
-    price: 59.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-AI710941439003_lifestyle?$rl_4x5_zoom$",
-    description: "Designed for all-day comfort and style."
-  },
-  {
-    id: 4,
-    name: "Custom Slim Fit Stretch Mesh Polo Shirt",
-    price: 999.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-AI710968951003_lifestyle?$rl_4x5_zoom$",
-    description: "Elevate your wardrobe with this premium polo shirt."
-  },
-  {
-    id: 5,
-    name: "Custom Slim Fit Soft Cotton Polo Shirt",
-    price: 699.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-1429832_lifestyle?$rl_4x5_zoom$",
-    description: "Experience the ultimate in comfort and style."
-  },
-  {
-    id: 6,
-    name: "Custom Slim Fit Mesh Polo Shirt",
-    price: 349.99,
-    image: "https://dtcralphlauren.scene7.com/is/image/PoloGSI/s7-1348098_lifestyle?$rl_4x5_zoom$",
-    description: "Elevate your wardrobe with this premium polo shirt."
-  }
-];
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const response = await axios.get("http://localhost:3000/items/products");
+                setProducts(response.data);
+            } catch (error) {
+                setError("Error fetching products");
+                console.error("Error fetching products:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, []);
 
-const Homepage = () => {
-  return (
-    <div>
-      <HeroSection />
-      <ProductGrid products={products} />
-    </div>
-  );
-};
+    if (loading) return <div className="flex items-center justify-center min-h-screen bg-gray-950 text-gray-200">Loading...</div>;
+    if (error) return <div className="flex items-center justify-center min-h-screen bg-gray-950 text-red-400">{error}</div>;
 
-export default Homepage;
+    return (
+        <div className="bg-white px-4 sm:px-6 lg:px-20 pb-20 mt-[-3rem]">
+            <div className="container mx-auto max-w-7xl">
+                <h1 className="text-3xl font-bold mb-8 ml-[-1rem]">Featured Products</h1>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product._id}
+                            name={product.name}
+                            price={parseFloat(product.price)}
+                            image={`http://localhost:3000${product.imageUrl}`}
+                        />
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
