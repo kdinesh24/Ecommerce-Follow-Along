@@ -108,7 +108,7 @@ const SignupPage = () => {
             <span className="text-gray-600 text-sm">
               Already have an account?{" "}
               <a onClick={() => navigate("/ecommerce-follow-along")} className="text-black hover:underline transition duration-300 cursor-pointer">
-                Sign Up
+                Log In
               </a>
             </span>
           </div>

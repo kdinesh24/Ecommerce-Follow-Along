@@ -1,4 +1,4 @@
-import { Heart } from 'lucide-react';
+
 import ProductCard from './ProductCard';
 
 const ProductGrid = ({ products }) => {

@@ -1,6 +1,13 @@
-import React from "react";
+import React, { useState } from 'react';
+import { Heart } from 'lucide-react';
 
 export default function ProductCard({ name, price, image, inStock = true }) {
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  const handleWishlist = () => {
+    setIsWishlisted(!isWishlisted);
+  };
+
   return (
     <div className="group relative flex flex-col">
       {/* Image Container */}
@@ -11,21 +18,19 @@ export default function ProductCard({ name, price, image, inStock = true }) {
           className="h-full w-full object-cover object-center transition-transform duration-300 ease-out group-hover:scale-105"
         />
         {/* Add to Wishlist button */}
-        <button 
-          className="absolute right-3 top-3 p-1"
+        <button
+          onClick={handleWishlist}
+          className="absolute right-3 top-3 rounded-full bg-white p-2 shadow-sm transition-all hover:scale-110 active:scale-95"
           aria-label="Add to wishlist"
         >
-          <svg 
-            width="16" 
-            height="16" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="2"
-            className="text-gray-800"
-          >
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-          </svg>
+          <Heart
+            size={20}
+            className={`transition-colors ${
+              isWishlisted 
+                ? 'fill-red-500 stroke-red-500' 
+                : 'stroke-gray-600 hover:stroke-gray-900'
+            }`}
+          />
         </button>
         {/* Add to Cart Button - Only shows on hover */}
         <div className="absolute bottom-0 left-0 right-0 translate-y-full transition-transform duration-200 ease-out group-hover:translate-y-0">
