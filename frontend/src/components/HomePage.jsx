@@ -8,7 +8,7 @@ export default function Homepage() {
     const [error, setError] = useState("");
 
     useEffect(() => {
-        const fetchProducts = async () => {
+        const fetchProducts = async () => {     
             try {
                 const response = await axios.get("http://localhost:3000/items/products");
                 setProducts(response.data);

@@ -1,0 +1,298 @@
+import React, { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { Pencil, Trash2, X } from "lucide-react";
+import axios from "axios";
+
+export default function SellerPage() {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm();
+
+  const [image, setImage] = useState(null);
+  const [products, setProducts] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/items/products");
+      setProducts(response.data);
+    } catch (error) {
+      setError("Error fetching products");
+    }
+  };
+
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    setError("");
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    if (image) {
+      formData.append("image", image);
+    }
+
+    try {
+      if (editingProduct) {
+        await axios.put(`http://localhost:3000/items/products/${editingProduct._id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      } else {
+        await axios.post("http://localhost:3000/items/products", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      await fetchProducts();
+      resetForm();
+    } catch (error) {
+      setError(error.response?.data?.message || "Error saving product");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      const file = e.target.files[0];
+      setImage(file);
+      setPreviewImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleEdit = (product) => {
+    setEditingProduct(product);
+    setValue("name", product.name);
+    setValue("description", product.description);
+    setValue("price", product.price);
+    // Set preview image with full URL
+    setPreviewImage(`http://localhost:3000${product.imageUrl}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDelete = async (productId) => {
+    try {
+      await axios.delete(`http://localhost:3000/items/products/${productId}`);
+      await fetchProducts();
+      setIsDeleteModalOpen(false);
+      setProductToDelete(null);
+    } catch (error) {
+      setError("Error deleting product");
+    }
+  };
+
+  const resetForm = () => {
+    reset();
+    setImage(null);
+    setPreviewImage(null);
+    setEditingProduct(null);
+  };
+
+  const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, productName }) => (
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+          <h3 className="text-lg font-medium mb-4">Delete Product</h3>
+          <p className="text-gray-600 mb-6">Are you sure you want to delete "{productName}"? This action cannot be undone.</p>
+          <div className="flex justify-end space-x-4">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-6xl">
+        <h1 className="text-4xl font-light mb-12 text-center uppercase tracking-wide">
+          {editingProduct ? 'Edit Product' : 'Add New Product'}
+        </h1>
+
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-sm mb-6">
+            {error}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Form Section */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow-sm">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium mb-2 uppercase">
+                Product Name
+              </label>
+              <input
+                id="name"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                {...register("name", { required: "Product name is required" })}
+                placeholder="Enter product name"
+              />
+              {errors.name && <span className="text-red-600 text-sm mt-1">{errors.name.message}</span>}
+            </div>
+
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium mb-2 uppercase">
+                Description
+              </label>
+              <textarea
+                id="description"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                {...register("description", { required: "Description is required" })}
+                placeholder="Enter product description"
+                rows={4}
+              />
+              {errors.description && <span className="text-red-600 text-sm mt-1">{errors.description.message}</span>}
+            </div>
+
+            <div>
+              <label htmlFor="price" className="block text-sm font-medium mb-2 uppercase">
+                Price
+              </label>
+              <input
+                id="price"
+                type="number"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                {...register("price", {
+                  required: "Price is required",
+                  min: { value: 0, message: "Price must be positive" },
+                })}
+                placeholder="Enter price"
+                step="0.01"
+              />
+              {errors.price && <span className="text-red-600 text-sm mt-1">{errors.price.message}</span>}
+            </div>
+
+            <div>
+              <label htmlFor="image" className="block text-sm font-medium mb-2 uppercase">
+                Product Image
+              </label>
+              <input
+                id="image"
+                type="file"
+                onChange={handleImageChange}
+                accept="image/*"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+              />
+              {previewImage && (
+                <div className="mt-4 relative">
+                  <img 
+                    src={previewImage} 
+                    alt="Preview" 
+                    className="w-32 h-32 object-cover rounded-lg"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImage(null);
+                      setPreviewImage(null);
+                    }}
+                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="flex space-x-4">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-black text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed uppercase"
+              >
+                {isSubmitting ? "Saving..." : (editingProduct ? "Update Product" : "Create Product")}
+              </button>
+              {editingProduct && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors uppercase"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+
+          {/* Products List Section */}
+          <div className="bg-white p-6 rounded-lg shadow-sm">
+            <h2 className="text-xl font-medium mb-6 uppercase">Your Products</h2>
+            <div className="space-y-6">
+              {products.map((product) => (
+                <div key={product._id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <img
+                    src={`http://localhost:3000${product.imageUrl}`}
+                    alt={product.name}
+                    className="w-16 h-16 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <h3 className="font-medium">{product.name}</h3>
+                    <p className="text-gray-600">${parseFloat(product.price).toFixed(2)}</p>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEdit(product)}
+                      className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                    >
+                      <Pencil size={20} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setProductToDelete(product);
+                        setIsDeleteModalOpen(true);
+                      }}
+                      className="p-2 text-red-600 hover:text-red-700 transition-colors"
+                    >
+                      <Trash2 size={20} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {products.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  No products added yet
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setProductToDelete(null);
+        }}
+        onConfirm={() => handleDelete(productToDelete?._id)}
+        productName={productToDelete?.name}
+      />
+    </div>
+  );
+}

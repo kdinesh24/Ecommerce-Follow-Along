@@ -20,7 +20,7 @@ const LoginPage = () => {
     <div className="min-h-screen bg-white flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-20">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-10 space-y-8 transform transition duration-300 hover:shadow-4xl">
         <div className="text-center">
-          <h2 className="mt-6 text-4xl font-bold text-black tracking-tight animate-pulse-soft">
+          <h2 className="mt-6 text-4xl font-bold text-black tracking-tight">
             Makers Vault
           </h2>
           <p className="mt-2 text-sm text-gray-600">
