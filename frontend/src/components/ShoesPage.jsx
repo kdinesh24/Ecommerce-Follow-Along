@@ -3,7 +3,7 @@ import axios from "axios";
 import ProductCard from "./ProductCard";
 import { ChevronDown } from "lucide-react";
 
-export default function Homepage() {
+export default function ShoesPage() {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -11,15 +11,16 @@ export default function Homepage() {
     const [sortMenuOpen, setSortMenuOpen] = useState(false);
     const [activeSortOption, setActiveSortOption] = useState("featured");
 
-    const categories = ["all", "clothing", "perfume", "shoe"];
-    const subcategories = ["all", "men", "women", "unisex"];
+    const categories = ["all", "men", "women", "unisex"];
+    const subcategories = ["all", "running", "casual", "formal"];
 
     useEffect(() => {
         const fetchProducts = async () => {    
             try {
                 const response = await axios.get("http://localhost:3000/items/products");
-                setProducts(response.data);
-                setFilteredProducts(response.data);
+                const shoeProducts = response.data.filter(product => product.category === "shoe");
+                setProducts(shoeProducts);
+                setFilteredProducts(shoeProducts);
             } catch (error) {
                 setError("Error fetching products");
                 console.error("Error fetching products:", error);
@@ -48,7 +49,7 @@ export default function Homepage() {
                 if (categories.includes(option)) {
                     sorted = option === "all" 
                         ? [...products]
-                        : products.filter(product => product.category === option);
+                        : products.filter(product => product.subcategory === option);
                 } else if (subcategories.includes(option)) {
                     sorted = option === "all"
                         ? [...products]
@@ -76,7 +77,7 @@ export default function Homepage() {
         <div className="bg-white px-4 sm:px-6 lg:px-20 pb-20 mt-[-3rem]">
             <div className="container mx-auto max-w-7xl">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold ml-[-1rem]">Featured Products</h1>
+                    <h1 className="text-3xl font-bold ml-[-1rem]">Shoes Collection</h1>
                     
                     <div className="relative">
                         <button
@@ -108,7 +109,7 @@ export default function Homepage() {
                                         </button>
                                     ))}
 
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">Category</h3>
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">Gender</h3>
                                     {categories.map((category) => (
                                         <button
                                             key={category}
@@ -123,7 +124,7 @@ export default function Homepage() {
                                         </button>
                                     ))}
 
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">For</h3>
+                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">Type</h3>
                                     {subcategories.map((subcategory) => (
                                         <button
                                             key={subcategory}
@@ -150,7 +151,7 @@ export default function Homepage() {
                             name={product.name}
                             description={product.description}
                             price={parseFloat(product.price)}
-                            image={product.imageUrl}
+                            image={`http://localhost:3000${product.imageUrl}`}
                             category={product.category}
                             subcategory={product.subcategory}
                         />

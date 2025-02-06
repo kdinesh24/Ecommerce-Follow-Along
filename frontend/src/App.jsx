@@ -6,6 +6,9 @@ import Homepage from "./components/HomePage";
 import HeroSection from "./components/HeroSection";
 import Footer from "./components/Footer";
 import SellerPage from "./components/SellerPage";
+import ShoesPage from "./components/ShoesPage";
+import { WishlistProvider } from "./components/ProductCard";
+
 
 function HomeLayout() {
   return (
@@ -18,6 +21,7 @@ function HomeLayout() {
 
 function App() {
   return (
+    <WishlistProvider>
     <div className="min-h-screen flex flex-col">
       <div className="flex-grow">
         <Routes>
@@ -26,10 +30,14 @@ function App() {
           <Route path="/ecommerce-follow-along/signup" element={<Signup />} />
           <Route path="/ecommerce-follow-along/home" element={<HomeLayout />} />
           <Route path="/ecommerce-follow-along/seller" element={<SellerPage />} />
+          <Route path="/ecommerce-follow-along/shoes" element={<ShoesPage />} />
+          
+          
         </Routes>
       </div>
       <Footer />
     </div>
+    </WishlistProvider>
   );
 }
 

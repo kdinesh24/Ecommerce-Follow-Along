@@ -23,53 +23,74 @@ export default function SellerPage() {
   const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
 
+  const categories = ["clothing", "perfume", "shoe"];
+  const subcategories = ["men", "women", "unisex"];
+
   useEffect(() => {
     fetchProducts();
   }, []);
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/items/products");
-      setProducts(response.data);
+        const response = await axios.get("http://localhost:3000/items/products");
+        // Sort products to maintain consistent order
+        const sortedProducts = response.data.sort((a, b) => 
+            new Date(b.createdAt) - new Date(a.createdAt)
+        );
+        setProducts(sortedProducts);
     } catch (error) {
-      setError("Error fetching products");
+        setError("Error fetching products");
+        console.error("Fetch error:", error);
     }
-  };
+};
 
-  const onSubmit = async (data) => {
-    setIsSubmitting(true);
-    setError("");
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", data.price);
-    if (image) {
+const onSubmit = async (data) => {
+  setIsSubmitting(true);
+  setError("");
+
+  const formData = new FormData();
+  Object.entries(data).forEach(([key, value]) => {
+      formData.append(key, value);
+  });
+
+  if (image) {
       formData.append("image", image);
-    }
+  }
 
-    try {
+  try {
+      let response;
       if (editingProduct) {
-        await axios.put(`http://localhost:3000/items/products/${editingProduct._id}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+          console.log('Updating product:', editingProduct._id);
+          response = await axios.put(
+              `http://localhost:3000/items/products/${editingProduct._id}`,
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+          );
       } else {
-        await axios.post("http://localhost:3000/items/products", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+          response = await axios.post(
+              "http://localhost:3000/items/products",
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+          );
       }
+
+      console.log('Server Response:', response.data);
       await fetchProducts();
       resetForm();
-    } catch (error) {
+  } catch (error) {
+      console.error("Error details:", error.response?.data);
       setError(error.response?.data?.message || "Error saving product");
-    } finally {
+  } finally {
       setIsSubmitting(false);
-    }
-  };
+  }
+};
+
 
   const handleImageChange = (e) => {
     if (e.target.files[0]) {
       const file = e.target.files[0];
       setImage(file);
+      // Create local preview URL
       setPreviewImage(URL.createObjectURL(file));
     }
   };
@@ -79,8 +100,11 @@ export default function SellerPage() {
     setValue("name", product.name);
     setValue("description", product.description);
     setValue("price", product.price);
-    // Set preview image with full URL
-    setPreviewImage(`http://localhost:3000${product.imageUrl}`);
+    setValue("category", product.category);
+    setValue("subcategory", product.subcategory);
+    // Use Cloudinary URL directly
+    setPreviewImage(product.imageUrl);
+    setImage(null)
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -143,6 +167,7 @@ export default function SellerPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Form Section */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow-sm">
+            {/* Name field */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium mb-2 uppercase">
                 Product Name
@@ -156,6 +181,7 @@ export default function SellerPage() {
               {errors.name && <span className="text-red-600 text-sm mt-1">{errors.name.message}</span>}
             </div>
 
+            {/* Description field */}
             <div>
               <label htmlFor="description" className="block text-sm font-medium mb-2 uppercase">
                 Description
@@ -170,6 +196,7 @@ export default function SellerPage() {
               {errors.description && <span className="text-red-600 text-sm mt-1">{errors.description.message}</span>}
             </div>
 
+            {/* Price field */}
             <div>
               <label htmlFor="price" className="block text-sm font-medium mb-2 uppercase">
                 Price
@@ -188,6 +215,47 @@ export default function SellerPage() {
               {errors.price && <span className="text-red-600 text-sm mt-1">{errors.price.message}</span>}
             </div>
 
+            {/* Category field */}
+            <div>
+              <label htmlFor="category" className="block text-sm font-medium mb-2 uppercase">
+                Category
+              </label>
+              <select
+                id="category"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                {...register("category", { required: "Category is required" })}
+              >
+                <option value="">Select Category</option>
+                {categories.map((category) => (
+                  <option key={category} value={category}>
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {errors.category && <span className="text-red-600 text-sm mt-1">{errors.category.message}</span>}
+            </div>
+
+            {/* Subcategory field */}
+            <div>
+              <label htmlFor="subcategory" className="block text-sm font-medium mb-2 uppercase">
+                Subcategory
+              </label>
+              <select
+                id="subcategory"
+                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                {...register("subcategory", { required: "Subcategory is required" })}
+              >
+                <option value="">Select Subcategory</option>
+                {subcategories.map((subcategory) => (
+                  <option key={subcategory} value={subcategory}>
+                    {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+                  </option>
+                ))}
+              </select>
+              {errors.subcategory && <span className="text-red-600 text-sm mt-1">{errors.subcategory.message}</span>}
+            </div>
+
+            {/* Image upload field */}
             <div>
               <label htmlFor="image" className="block text-sm font-medium mb-2 uppercase">
                 Product Image
@@ -220,6 +288,7 @@ export default function SellerPage() {
               )}
             </div>
 
+            {/* Submit buttons */}
             <div className="flex space-x-4">
               <button
                 type="submit"
@@ -247,13 +316,16 @@ export default function SellerPage() {
               {products.map((product) => (
                 <div key={product._id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
                   <img
-                    src={`http://localhost:3000${product.imageUrl}`}
+                    src={product.imageUrl} // Using Cloudinary URL directly
                     alt={product.name}
                     className="w-16 h-16 object-cover rounded"
                   />
                   <div className="flex-1">
                     <h3 className="font-medium">{product.name}</h3>
                     <p className="text-gray-600">${parseFloat(product.price).toFixed(2)}</p>
+                    <p className="text-gray-500 text-sm">
+                      {product.category} • {product.subcategory}
+                    </p>
                   </div>
                   <div className="flex space-x-2">
                     <button

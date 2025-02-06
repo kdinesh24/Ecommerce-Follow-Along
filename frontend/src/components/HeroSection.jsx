@@ -80,9 +80,9 @@ const MakersVaultHero = () => {
           </div>
 
           <div className="hidden lg:flex items-center space-x-12">
-            <a href="#" className="glowing-text text-white transition duration-300">Lifestyle</a>
-            <a href="#" className="glowing-text text-white transition duration-300">Sports</a>
-            <a href="#" className="glowing-text text-white transition duration-300">Shoes</a>
+            <a href="" className="glowing-text text-white transition duration-300">Lifestyle</a>
+            <a href="" className="glowing-text text-white transition duration-300">Sports</a>
+            <a href="/ecommerce-follow-along/shoes" className="glowing-text text-white transition duration-300">Shoes</a>
             <a href="#" className="glowing-text text-white transition duration-300">Perfumes</a>
             <button onClick={handleProfileClick} className="px-6 py-2 text-white border border-white-400 rounded-full hover:bg-white hover:text-black transition-colors">
               Be a seller

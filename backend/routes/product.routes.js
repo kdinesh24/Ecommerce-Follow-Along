@@ -1,10 +1,24 @@
 const express = require('express');
 const router = express.Router();
 const productController = require('../controllers/product.controller');
-const upload = require('../config/multer');
+const upload = require('../middleware/upload.middleware');
 
+// Create a product (image optional)
 router.post('/products', upload.single('image'), productController.createProduct);
 
-router.get('/products', productController.getProducts);
+// Get all products
+router.get('/products', (req, res, next) => {
+    if (req.file) {
+        upload.single('image')(req, res, next);
+    } else {
+        next();
+    }
+}, productController.getProducts);
+
+// Update a product (image optional)
+router.put('/products/:id', upload.single('image'), productController.updateProduct);
+
+// Delete a product
+router.delete('/products/:id', productController.deleteProduct);
 
 module.exports = router;
