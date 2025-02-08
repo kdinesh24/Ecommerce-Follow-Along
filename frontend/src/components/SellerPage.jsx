@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2, X } from "lucide-react";
 import axios from "axios";
+import Footer from "./Footer";
 
 export default function SellerPage() {
   const {
@@ -152,7 +153,7 @@ const onSubmit = async (data) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gray-50 text-gray-900 py-6 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-6xl">
         <h1 className="text-4xl font-light mb-12 text-center uppercase tracking-wide">
           {editingProduct ? 'Edit Product' : 'Add New Product'}
@@ -365,6 +366,10 @@ const onSubmit = async (data) => {
         onConfirm={() => handleDelete(productToDelete?._id)}
         productName={productToDelete?.name}
       />
+      
+      <div className="mt-12">
+        <Footer />
+      </div>
     </div>
   );
 }

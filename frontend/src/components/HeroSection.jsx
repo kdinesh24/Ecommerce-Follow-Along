@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Search, X, Heart, ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -48,7 +48,7 @@ const MakersVaultHero = () => {
       image: "https://images.unsplash.com/photo-1616640045164-deb3b104c4b6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      image: "https://www.apple.com/newsroom/images/2023/10/apple-unveils-new-macbook-pro-featuring-m3-chips/article/Apple-MacBook-Pro-2up-231030_Full-Bleed-Image.jpg.large.jpg",
+      image: "https://media.wired.com/photos/672107771a715d099fb8e041/16:9/w_3840,h_2160,c_limit/Apple-MacBook-Pro-M4-lineup.png",
     },
     {
       image: "https://static.nike.com/a/images/w_1920,c_limit/b01bada9-c96a-4ad9-ac83-6a9e51e1107c/what-to-do-if-you-get-a-blood-blister-on-your-toe-according-to-podiatrists.jpg",
@@ -80,10 +80,19 @@ const MakersVaultHero = () => {
           </div>
 
           <div className="hidden lg:flex items-center space-x-12">
-            <a href="" className="glowing-text text-white transition duration-300">Lifestyle</a>
-            <a href="" className="glowing-text text-white transition duration-300">Sports</a>
+            <a 
+              onClick={() => navigate('/ecommerce-follow-along/lifestyle')} 
+              className="glowing-text text-white transition duration-300 cursor-pointer"
+            >
+              Lifestyle
+            </a>
             <a href="/ecommerce-follow-along/shoes" className="glowing-text text-white transition duration-300">Shoes</a>
-            <a href="#" className="glowing-text text-white transition duration-300">Perfumes</a>
+            <a 
+              onClick={() => navigate('/ecommerce-follow-along/perfume')} 
+              className="glowing-text text-white transition duration-300 cursor-pointer"
+            >
+              Perfumes
+            </a>
             <button onClick={handleProfileClick} className="px-6 py-2 text-white border border-white-400 rounded-full hover:bg-white hover:text-black transition-colors">
               Be a seller
             </button>         
@@ -108,7 +117,7 @@ const MakersVaultHero = () => {
               <ShoppingCart size={22} />
             </button>
             <button 
-              
+              onClick={() => navigate('/ecommerce-follow-along/profile')}
               className="text-white hover:text-gray-200 transition-colors"
             >
               <User size={22} />
@@ -153,5 +162,6 @@ const MakersVaultHero = () => {
     </div>
   );
 };
+
 
 export default MakersVaultHero;

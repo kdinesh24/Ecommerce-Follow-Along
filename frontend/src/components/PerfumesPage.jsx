@@ -5,7 +5,7 @@ import { ChevronDown } from "lucide-react";
 import Footer from "./Footer";
 import { useNavigate } from 'react-router-dom';
 
-export default function ShoesPage() {
+export default function PerfumesPage() {
     const navigate = useNavigate();
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);
@@ -14,16 +14,18 @@ export default function ShoesPage() {
     const [sortMenuOpen, setSortMenuOpen] = useState(false);
     const [activeSortOption, setActiveSortOption] = useState("featured");
 
+    // Updated categories and subcategories for perfumes
     const categories = ["all", "men", "women", "unisex"];
-    const subcategories = ["all", "running", "casual", "formal"];
+    const subcategories = ["all", "eau de parfum", "eau de toilette", "cologne"];
 
     useEffect(() => {
         const fetchProducts = async () => {    
             try {
                 const response = await axios.get("http://localhost:3000/items/products");
-                const shoeProducts = response.data.filter(product => product.category === "shoe");
-                setProducts(shoeProducts);
-                setFilteredProducts(shoeProducts);
+                // Changed filter to get perfume items
+                const perfumeProducts = response.data.filter(product => product.category === "perfume");
+                setProducts(perfumeProducts);
+                setFilteredProducts(perfumeProducts);
             } catch (error) {
                 setError("Error fetching products");
                 console.error("Error fetching products:", error);
@@ -78,7 +80,6 @@ export default function ShoesPage() {
 
     return (
         <>
-            {/* Floating Navigation */}
             <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
                 <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl p-6 border border-gray-100">
                     <div className="flex items-center space-x-12">
@@ -120,7 +121,7 @@ export default function ShoesPage() {
             <div className="bg-white px-4 sm:px-6 lg:px-10 pb-8 pt-32 min-h-[calc(100vh-14rem)]">
                 <div className="container mx-auto max-w-7xl">
                     <div className="flex justify-between items-center mb-8">
-                        <h1 className="text-3xl font-bold">Shoes Collection</h1>
+                        <h1 className="text-3xl font-bold">Perfume Collection</h1>
                         
                         <div className="relative">
                             <button
@@ -202,7 +203,7 @@ export default function ShoesPage() {
                     </div>
                 </div>
             </div>
-            <div className="mb-4">
+            <div className="mt-24">
                 <Footer />
             </div>
         </>

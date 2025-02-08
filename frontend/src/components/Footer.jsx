@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Instagram, Linkedin, Facebook, Youtube, ChevronUp, ChevronDown } from 'lucide-react';
 
 const NavLink = ({ href, children }) => (
@@ -15,8 +15,8 @@ const Footer = () => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="px-4 sm:px-8 pb-8">
-      <footer className="bg-black text-gray-100 py-8 px-8 rounded-[2rem] w-full max-w-[1430px] mx-auto relative transition-all duration-500 ease-in-out">
+    <div className="px-4 sm:px-2">
+      <footer className="bg-black text-gray-100 py-8 px-8 rounded-[2rem] w-full max-w-[1450px] mx-auto relative transition-all duration-500 ease-in-out">
         {/* Expand/Collapse Button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
@@ -53,7 +53,7 @@ const Footer = () => {
             </div>
 
             {/* Basic Info */}
-            <div className="mt-4 md:mt-0">
+            <div className="mt-4 mr-12 md:mt-0">
               <div className="flex items-center space-x-2">
                 <div className="w-6 h-6 border border-gray-400 rounded-full flex items-center justify-center">
                   <div className="w-3 h-3 border-2 border-gray-400 rounded-full"/>

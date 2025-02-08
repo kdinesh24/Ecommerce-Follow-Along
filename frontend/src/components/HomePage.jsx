@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
 import { ChevronDown } from "lucide-react";
+import Footer from "./Footer";
 
 export default function Homepage() {
     const [products, setProducts] = useState([]);
@@ -73,7 +74,7 @@ export default function Homepage() {
     );
 
     return (
-        <div className="bg-white px-4 sm:px-6 lg:px-20 pb-20 mt-[-3rem]">
+        <div className="bg-white px-4 sm:px-6 lg:px-20 pb-5 mt-[-3rem]">
             <div className="container mx-auto max-w-7xl">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold ml-[-1rem]">Featured Products</h1>
@@ -156,6 +157,9 @@ export default function Homepage() {
                         />
                     ))}
                 </div>
+            </div>
+            <div className="mt-3">
+                <Footer />
             </div>
         </div>
     );
