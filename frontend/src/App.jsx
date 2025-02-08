@@ -8,6 +8,7 @@ import ProfilePage from "./components/ProfilePage";
 import SignupPage from "./components/SignupPage";
 import LifestylePage from "./components/LifestylePage";
 import PerfumesPage from "./components/PerfumesPage";
+import ProductInfo from "./components/ProductInfo";
 
 
 
@@ -34,6 +35,7 @@ function App() {
           <Route path="/ecommerce-follow-along/profile" element={<ProfilePage />} />
           <Route path="/ecommerce-follow-along/lifestyle" element={<LifestylePage />} />
           <Route path="/ecommerce-follow-along/perfume" element={<PerfumesPage />} />
+          <Route path="/ecommerce-follow-along/product/:id" element={<ProductInfo />} />
 
 
         </Routes>

@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Heart, ShoppingBag } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // ProductCard Component
 export default function ProductCard({
+  _id,
   name,
   description,
   price,
@@ -13,9 +15,20 @@ export default function ProductCard({
 }) {
   // Add state for favorite
   const [isFavorite, setIsFavorite] = useState(false);
+  const navigate = useNavigate();
+
+  const handleCardClick = (e) => {
+    // Prevent navigation if clicking the heart or cart button
+    if (!e.target.closest('button')) {
+      console.log('Product props:', { _id, name });
+      navigate(`/ecommerce-follow-along/product/${_id}`);
+    }
+  };
 
   return (
-    <div className="group relative flex flex-col rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
+    <div
+    onClick={handleCardClick}
+     className="group relative flex flex-col rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 rounded-t-lg">
         {/* Add heart button */}
         <button

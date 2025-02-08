@@ -191,6 +191,7 @@ export default function ShoesPage() {
                         {filteredProducts.map((product) => (
                             <ProductCard
                                 key={product._id}
+                                _id={product._id}
                                 name={product.name}
                                 description={product.description}
                                 price={parseFloat(product.price)}

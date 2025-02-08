@@ -19,6 +19,7 @@ export default function Homepage() {
         const fetchProducts = async () => {    
             try {
                 const response = await axios.get("http://localhost:3000/items/products");
+                console.log('Products from API:', response.data); // Add this
                 setProducts(response.data);
                 setFilteredProducts(response.data);
             } catch (error) {
@@ -148,6 +149,7 @@ export default function Homepage() {
                     {filteredProducts.map((product) => (
                         <ProductCard
                             key={product._id}
+                            _id={product._id}
                             name={product.name}
                             description={product.description}
                             price={parseFloat(product.price)}
