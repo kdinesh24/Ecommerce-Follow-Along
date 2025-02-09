@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// ProductCard Component
+
 export default function ProductCard({
   _id,
   name,
@@ -13,26 +13,29 @@ export default function ProductCard({
   subcategory,
   inStock = true
 }) {
-  // Add state for favorite
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
 
+
   const handleCardClick = (e) => {
-    // Prevent navigation if clicking the heart or cart button
     if (!e.target.closest('button')) {
-      console.log('Product props:', { _id, name });
       navigate(`/ecommerce-follow-along/product/${_id}`);
     }
   };
 
+
+
   return (
     <div
-    onClick={handleCardClick}
-     className="group relative flex flex-col rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 bg-white">
+      onClick={handleCardClick}
+      className="group relative flex flex-col rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 bg-white"
+    >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-50 rounded-t-lg">
-        {/* Add heart button */}
         <button
-          onClick={() => setIsFavorite(!isFavorite)}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsFavorite(!isFavorite);
+          }}
           className="absolute right-2 top-2 z-10 rounded-full bg-white p-1.5 transition-colors hover:bg-gray-100"
         >
           <Heart
@@ -58,8 +61,16 @@ export default function ProductCard({
         </div>
         <div className="flex items-center justify-between">
           <p className="text-md font-semibold text-gray-900">${price.toFixed(2)}</p>
-          <button className="rounded-full bg-black p-2 text-white hover:bg-zinc-800 transition-colors">
-            <ShoppingBag size={18} />
+          <button 
+            
+           
+            className={`rounded-full p-2 text-white transition-colors ${
+              inStock 
+                ? 'bg-black hover:bg-zinc-800' 
+                : 'bg-gray-400 cursor-not-allowed'
+            }`}
+          >
+            <ShoppingBag size={18}  />
           </button>
         </div>
         {!inStock && (

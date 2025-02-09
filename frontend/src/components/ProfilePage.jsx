@@ -5,20 +5,22 @@ import {
   CreditCard, 
   User, 
   LogOut,
-  ChevronRight,
-  Shield
+  ChevronRight
 } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    isSeller: false
+    isSeller: false,
+    currentRole: 'customer'
   });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [saveStatus, setSaveStatus] = useState('');
 
   useEffect(() => {
     checkAuthAndFetchProfile();
@@ -26,35 +28,75 @@ export default function ProfilePage() {
 
   const checkAuthAndFetchProfile = async () => {
     try {
-      console.log('Checking authentication...');
-      const response = await fetch('/check-auth', {
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      console.log('Auth response status:', response.status);
-
-      if (!response.ok) {
-        throw new Error('Not authenticated');
+      setIsLoading(true);
+      
+      // First, check if we have userData in localStorage
+      const storedUserData = localStorage.getItem('userData');
+      if (!storedUserData) {
+        throw new Error('No stored user data');
       }
 
-      const data = await response.json();
-      console.log('Auth data:', data);
+      const userDataFromStorage = JSON.parse(storedUserData);
 
-      setFormData({
-        name: data.user.name || '',
-        email: data.user.email || '',
-        isSeller: data.user.isSeller || false
+      // Try to make an authenticated request to verify the session
+      const response = await axios.post('http://localhost:3000/users/login', {
+        email: userDataFromStorage.email,
+        password: userDataFromStorage.password || '' // Include if you stored it
+      }, {
+        withCredentials: true
       });
+
+      if (response.data && response.data.user) {
+        // Update formData with the combination of server data and stored preferences
+        setFormData({
+          name: response.data.user.name || userDataFromStorage.name || '',
+          email: response.data.user.email || userDataFromStorage.email || '',
+          isSeller: response.data.user.isSeller || userDataFromStorage.isSeller || false,
+          currentRole: userDataFromStorage.currentRole || 'customer'
+        });
+
+        // Update localStorage with fresh data while preserving role
+        const updatedData = {
+          ...response.data.user,
+          currentRole: userDataFromStorage.currentRole
+        };
+        localStorage.setItem('userData', JSON.stringify(updatedData));
+      } else {
+        throw new Error('Invalid response from server');
+      }
+
     } catch (err) {
       console.error('Auth check error:', err);
-      if (err.message === 'Not authenticated') {
+      setError(err.message);
+      // Only navigate to login if there's no valid stored data
+      if (!localStorage.getItem('userData')) {
         navigate('/ecommerce-follow-along/login');
+      } else {
+        // Use stored data as fallback
+        const fallbackData = JSON.parse(localStorage.getItem('userData'));
+        setFormData({
+          name: fallbackData.name || '',
+          email: fallbackData.email || '',
+          isSeller: fallbackData.isSeller || false,
+          currentRole: fallbackData.currentRole || 'customer'
+        });
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post('http://localhost:3000/users/logout', {}, {
+        withCredentials: true
+      });
+    } catch (err) {
+      console.error('Logout error:', err);
+    } finally {
+      // Always clear localStorage and redirect
+      localStorage.removeItem('userData');
+      navigate('/ecommerce-follow-along/login');
     }
   };
 
@@ -68,47 +110,69 @@ export default function ProfilePage() {
 
   const handleSaveChanges = async () => {
     try {
-      const response = await fetch('http://localhost:3000/auth/update-profile', {
-        method: 'PUT',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
+      setSaveStatus('Saving...');
+      
+      // First update localStorage
+      const currentStoredData = JSON.parse(localStorage.getItem('userData') || '{}');
+      const updatedData = {
+        ...currentStoredData,
+        name: formData.name,
+        email: formData.email
+      };
+      localStorage.setItem('userData', JSON.stringify(updatedData));
+      
+      // Then try to update server
+      try {
+        const response = await axios.put('http://localhost:3000/users/update-profile', {
           name: formData.name,
           email: formData.email
-        })
-      });
+        }, {
+          withCredentials: true
+        });
 
-      if (!response.ok) {
-        throw new Error('Failed to update profile');
+        if (response.data && response.data.user) {
+          // Update localStorage with server response while preserving role
+          const serverUpdatedData = {
+            ...response.data.user,
+            currentRole: updatedData.currentRole
+          };
+          localStorage.setItem('userData', JSON.stringify(serverUpdatedData));
+        }
+      } catch (serverError) {
+        console.warn('Server update failed, using localStorage only:', serverError);
       }
 
-      const data = await response.json();
-      
-      setFormData(prevData => ({
-        ...prevData,
-        name: data.name,
-        email: data.email
-      }));
-      
-      alert('Profile updated successfully');
+      setSaveStatus('Changes saved successfully!');
+      setTimeout(() => setSaveStatus(''), 3000);
     } catch (err) {
-      console.error('Update error:', err);
-      alert('Failed to update profile. Please try again.');
+      console.error('Save error:', err);
+      setSaveStatus('Failed to save changes');
+      setTimeout(() => setSaveStatus(''), 3000);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await fetch('http://localhost:3000/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
-      navigate('/ecommerce-follow-along/login');
-    } catch (err) {
-      console.error('Logout error:', err);
+  const handleSwitchRole = () => {
+    const newRole = formData.currentRole === 'seller' ? 'customer' : 'seller';
+    
+    // Update localStorage
+    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const updatedData = {
+      ...userData,
+      currentRole: newRole
+    };
+    localStorage.setItem('userData', JSON.stringify(updatedData));
+    
+    setFormData(prev => ({
+      ...prev,
+      currentRole: newRole
+    }));
+  };
+
+  const getUserTypeDisplay = () => {
+    if (!formData.isSeller) {
+      return 'Customer';
     }
+    return formData.currentRole === 'seller' ? 'Seller' : 'Customer';
   };
 
   if (isLoading) {
@@ -119,9 +183,12 @@ export default function ProfilePage() {
     );
   }
 
+
+
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Enhanced Floating Navigation */}
+      {/* Navigation Bar */}
       <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
         <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl p-6 border border-gray-100">
           <div className="flex items-center space-x-12">
@@ -160,10 +227,10 @@ export default function ProfilePage() {
         </div>
       </nav>
 
-      {/* Main Content with Enhanced Design */}
+      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-32">
         <div className="flex gap-8">
-          {/* Enhanced Left Sidebar */}
+          {/* Left Sidebar */}
           <div className="w-72">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
@@ -174,6 +241,9 @@ export default function ProfilePage() {
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
                 <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
+                <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
+                  {getUserTypeDisplay()}
+                </p>
               </div>
               
               <nav className="space-y-2 p-4">
@@ -214,7 +284,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Enhanced Main Form */}
+          {/* Main Form */}
           <div className="flex-1">
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
               <div className="pb-6 border-b border-gray-200">
@@ -256,27 +326,49 @@ export default function ProfilePage() {
                     <div className="flex-1">
                       <h3 className="text-sm font-medium text-gray-900">Account Type</h3>
                       <p className="text-sm text-gray-500 mt-1">
-                        You are currently a {formData.isSeller ? 'Seller' : 'Buyer'} account
+                        You are currently logged in as a {getUserTypeDisplay()}
                       </p>
+                      {formData.isSeller && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {formData.currentRole === 'customer' 
+                            ? "Switch to seller mode to access your seller dashboard"
+                            : "Switch to customer mode to shop"}
+                        </p>
+                      )}
                     </div>
                     {formData.isSeller && (
-                      <button
-                        onClick={() => navigate('/ecommerce-follow-along/seller')}
-                        className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                      >
-                        Go to Seller Dashboard
-                      </button>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={handleSwitchRole}
+                          className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                        >
+                          Switch to {formData.currentRole === 'seller' ? 'Customer' : 'Seller'}
+                        </button>
+                        {formData.currentRole === 'seller' && (
+                          <button
+                            onClick={() => navigate('/ecommerce-follow-along/seller')}
+                            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-900 transition-colors duration-200"
+                          >
+                            Seller Dashboard
+                          </button>
+                        )}
+                      </div>
                     )}
                   </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="mt-8 flex items-center">
                   <button
                     onClick={handleSaveChanges}
                     className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
                   >
                     Save Changes
                   </button>
+                  {saveStatus && (
+                    <span className={`ml-4 text-sm ${saveStatus.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
+                      {saveStatus}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

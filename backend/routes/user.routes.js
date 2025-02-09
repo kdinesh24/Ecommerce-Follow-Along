@@ -62,4 +62,27 @@ router.get('/check-auth', (req, res) => {
     });
   });
 
+
+  // Optional improvements for your user.routes.js:
+
+// Get current role
+router.get('/role', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ msg: 'Not authenticated' });
+  }
+  User.findById(req.session.userId)
+    .select('currentRole')
+    .then(user => res.json({ currentRole: user.currentRole }));
+});
+
+// Update role
+router.put('/role', (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ msg: 'Not authenticated' });
+  }
+  const { role } = req.body;
+  User.findByIdAndUpdate(req.session.userId, { currentRole: role }, { new: true })
+    .then(user => res.json({ msg: 'Role updated', currentRole: user.currentRole }));
+});
+
 module.exports = router;

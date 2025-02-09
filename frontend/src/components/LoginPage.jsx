@@ -2,15 +2,21 @@ import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Eye, EyeOff } from 'lucide-react'
+import LoginOptionsModal from './LoginOptionsModal'
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [tempLoginData, setTempLoginData] = useState(null)
   const navigate = useNavigate()
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsLoading(true)
+    
     try {
       const response = await axios.post('http://localhost:3000/users/login', {
         email,
@@ -20,11 +26,38 @@ const LoginPage = () => {
       })
       
       if (response.status === 200) {
-        navigate("/ecommerce-follow-along/home")
+        // If user is a seller, show the modal and store response temporarily
+        if (response.data.user.isSeller) {
+          setTempLoginData(response.data)
+          setIsModalOpen(true)
+        } else {
+          // If not a seller, login directly as customer
+          const userData = {
+            ...response.data.user,
+            currentRole: 'customer'
+          }
+          localStorage.setItem('userData', JSON.stringify(userData))
+          navigate("/ecommerce-follow-along/home")
+        }
       }
     } catch (error) {
       console.error('Login error:', error)
-      alert(error.response?.data?.msg || 'Login failed')
+      alert(error.response?.data?.message || 'Login failed')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleRoleSelect = (role) => {
+    setIsModalOpen(false)
+    
+    if (tempLoginData) {
+      const userData = {
+        ...tempLoginData.user,
+        currentRole: role
+      }
+      localStorage.setItem('userData', JSON.stringify(userData))
+      navigate("/ecommerce-follow-along/home")
     }
   }
 
@@ -35,6 +68,13 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex">
+      {isModalOpen && (
+        <LoginOptionsModal 
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSelectRole={handleRoleSelect}
+        />
+      )}
       {/* Left Section */}
       <div className="w-1/2 bg-white p-8 flex items-center justify-center">
         <div className="w-full max-w-md">
@@ -52,6 +92,7 @@ const LoginPage = () => {
             type="button"
             onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-3 mb-4 hover:bg-gray-50 transition-colors"
+            disabled={isLoading}
           >
             <img 
               src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
@@ -81,6 +122,7 @@ const LoginPage = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 required
+                disabled={isLoading}
               />
             </div>
 
@@ -93,6 +135,7 @@ const LoginPage = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md"
                   required
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
@@ -104,10 +147,7 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-
-              </div>
+            <div className="flex items-center justify-end">
               <a href="#" className="text-sm text-blue-500 hover:underline">
                 Forgot password?
               </a>
@@ -115,9 +155,10 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-black text-white rounded-md py-3 hover:bg-gray-800 transition-colors"
+              className="w-full bg-black text-white rounded-md py-3 hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
@@ -148,8 +189,7 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
-  );
-};
-
+  )
+}
 
 export default LoginPage

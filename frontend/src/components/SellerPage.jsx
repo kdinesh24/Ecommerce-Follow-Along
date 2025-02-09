@@ -153,205 +153,247 @@ const onSubmit = async (data) => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 py-6 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-light mb-12 text-center uppercase tracking-wide">
-          {editingProduct ? 'Edit Product' : 'Add New Product'}
-        </h1>
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-sm mb-6">
-            {error}
+    <>
+      {/* Navigation Bar */}
+      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl p-6 border border-gray-100">
+          <div className="flex items-center space-x-12">
+            <button 
+              onClick={() => navigate('/ecommerce-follow-along/home')}
+              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
+            >
+              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Home</span>
+              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
+            </button>
+            
+            <button 
+              onClick={() => navigate('/ecommerce-follow-along/lifestyle')}
+              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
+            >
+              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Lifestyle</span>
+              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
+            </button>
+            
+            <button 
+              onClick={() => navigate('/ecommerce-follow-along/shoes')}
+              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
+            >
+              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Shoes</span>
+              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
+            </button>
+            
+            <button 
+              onClick={() => navigate('/ecommerce-follow-along/perfume')}
+              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
+            >
+              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Perfume</span>
+              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
+            </button>
           </div>
-        )}
+        </div>
+      </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Form Section */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow-sm">
-            {/* Name field */}
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium mb-2 uppercase">
-                Product Name
-              </label>
-              <input
-                id="name"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
-                {...register("name", { required: "Product name is required" })}
-                placeholder="Enter product name"
-              />
-              {errors.name && <span className="text-red-600 text-sm mt-1">{errors.name.message}</span>}
+      {/* Main Content */}
+      <div className="min-h-screen bg-gray-50 text-gray-900 py-6 px-4 sm:px-6 lg:px-8 pt-32">
+        <div className="container mx-auto max-w-6xl">
+          <h1 className="text-4xl font-light mb-12 text-center uppercase">
+            {editingProduct ? 'Edit Product' : 'Add New Product'}
+          </h1>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-sm mb-6">
+              {error}
             </div>
+          )}
 
-            {/* Description field */}
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium mb-2 uppercase">
-                Description
-              </label>
-              <textarea
-                id="description"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
-                {...register("description", { required: "Description is required" })}
-                placeholder="Enter product description"
-                rows={4}
-              />
-              {errors.description && <span className="text-red-600 text-sm mt-1">{errors.description.message}</span>}
-            </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Form Section */}
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-white p-6 rounded-lg shadow-sm">
+              {/* Name field */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium mb-2 uppercase">
+                  Product Name
+                </label>
+                <input
+                  id="name"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                  {...register("name", { required: "Product name is required" })}
+                  placeholder="Enter product name"
+                />
+                {errors.name && <span className="text-red-600 text-sm mt-1">{errors.name.message}</span>}
+              </div>
 
-            {/* Price field */}
-            <div>
-              <label htmlFor="price" className="block text-sm font-medium mb-2 uppercase">
-                Price
-              </label>
-              <input
-                id="price"
-                type="number"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
-                {...register("price", {
-                  required: "Price is required",
-                  min: { value: 0, message: "Price must be positive" },
-                })}
-                placeholder="Enter price"
-                step="0.01"
-              />
-              {errors.price && <span className="text-red-600 text-sm mt-1">{errors.price.message}</span>}
-            </div>
+              {/* Description field */}
+              <div>
+                <label htmlFor="description" className="block text-sm font-medium mb-2 uppercase">
+                  Description
+                </label>
+                <textarea
+                  id="description"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                  {...register("description", { required: "Description is required" })}
+                  placeholder="Enter product description"
+                  rows={4}
+                />
+                {errors.description && <span className="text-red-600 text-sm mt-1">{errors.description.message}</span>}
+              </div>
 
-            {/* Category field */}
-            <div>
-              <label htmlFor="category" className="block text-sm font-medium mb-2 uppercase">
-                Category
-              </label>
-              <select
-                id="category"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
-                {...register("category", { required: "Category is required" })}
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>
-                    {category.charAt(0).toUpperCase() + category.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {errors.category && <span className="text-red-600 text-sm mt-1">{errors.category.message}</span>}
-            </div>
+              {/* Price field */}
+              <div>
+                <label htmlFor="price" className="block text-sm font-medium mb-2 uppercase">
+                  Price
+                </label>
+                <input
+                  id="price"
+                  type="number"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                  {...register("price", {
+                    required: "Price is required",
+                    min: { value: 0, message: "Price must be positive" },
+                  })}
+                  placeholder="Enter price"
+                  step="0.01"
+                />
+                {errors.price && <span className="text-red-600 text-sm mt-1">{errors.price.message}</span>}
+              </div>
 
-            {/* Subcategory field */}
-            <div>
-              <label htmlFor="subcategory" className="block text-sm font-medium mb-2 uppercase">
-                Subcategory
-              </label>
-              <select
-                id="subcategory"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
-                {...register("subcategory", { required: "Subcategory is required" })}
-              >
-                <option value="">Select Subcategory</option>
-                {subcategories.map((subcategory) => (
-                  <option key={subcategory} value={subcategory}>
-                    {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
-                  </option>
-                ))}
-              </select>
-              {errors.subcategory && <span className="text-red-600 text-sm mt-1">{errors.subcategory.message}</span>}
-            </div>
+              {/* Category field */}
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium mb-2 uppercase">
+                  Category
+                </label>
+                <select
+                  id="category"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                  {...register("category", { required: "Category is required" })}
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category.charAt(0).toUpperCase() + category.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                {errors.category && <span className="text-red-600 text-sm mt-1">{errors.category.message}</span>}
+              </div>
 
-            {/* Image upload field */}
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium mb-2 uppercase">
-                Product Image
-              </label>
-              <input
-                id="image"
-                type="file"
-                onChange={handleImageChange}
-                accept="image/*"
-                className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
-              />
-              {previewImage && (
-                <div className="mt-4 relative">
-                  <img 
-                    src={previewImage} 
-                    alt="Preview" 
-                    className="w-32 h-32 object-cover rounded-lg"
-                  />
+              {/* Subcategory field */}
+              <div>
+                <label htmlFor="subcategory" className="block text-sm font-medium mb-2 uppercase">
+                  Subcategory
+                </label>
+                <select
+                  id="subcategory"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors"
+                  {...register("subcategory", { required: "Subcategory is required" })}
+                >
+                  <option value="">Select Subcategory</option>
+                  {subcategories.map((subcategory) => (
+                    <option key={subcategory} value={subcategory}>
+                      {subcategory.charAt(0).toUpperCase() + subcategory.slice(1)}
+                    </option>
+                  ))}
+                </select>
+                {errors.subcategory && <span className="text-red-600 text-sm mt-1">{errors.subcategory.message}</span>}
+              </div>
+
+              {/* Image upload field */}
+              <div>
+                <label htmlFor="image" className="block text-sm font-medium mb-2 uppercase">
+                  Product Image
+                </label>
+                <input
+                  id="image"
+                  type="file"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-gray-200 focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200"
+                />
+                {previewImage && (
+                  <div className="mt-4 relative">
+                    <img 
+                      src={previewImage} 
+                      alt="Preview" 
+                      className="w-32 h-32 object-cover rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImage(null);
+                        setPreviewImage(null);
+                      }}
+                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Submit buttons */}
+              <div className="flex space-x-4">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-black text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed uppercase"
+                >
+                  {isSubmitting ? "Saving..." : (editingProduct ? "Update Product" : "Create Product")}
+                </button>
+                {editingProduct && (
                   <button
                     type="button"
-                    onClick={() => {
-                      setImage(null);
-                      setPreviewImage(null);
-                    }}
-                    className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-md hover:bg-gray-100"
+                    onClick={resetForm}
+                    className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors uppercase"
                   >
-                    <X size={16} />
+                    Cancel
                   </button>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            </form>
 
-            {/* Submit buttons */}
-            <div className="flex space-x-4">
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1 bg-black text-white py-3 px-4 rounded-lg hover:bg-gray-800 transition-colors duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed uppercase"
-              >
-                {isSubmitting ? "Saving..." : (editingProduct ? "Update Product" : "Create Product")}
-              </button>
-              {editingProduct && (
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors uppercase"
-                >
-                  Cancel
-                </button>
-              )}
-            </div>
-          </form>
-
-          {/* Products List Section */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-medium mb-6 uppercase">Your Products</h2>
-            <div className="space-y-6">
-              {products.map((product) => (
-                <div key={product._id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                  <img
-                    src={product.imageUrl} // Using Cloudinary URL directly
-                    alt={product.name}
-                    className="w-16 h-16 object-cover rounded"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-medium">{product.name}</h3>
-                    <p className="text-gray-600">${parseFloat(product.price).toFixed(2)}</p>
-                    <p className="text-gray-500 text-sm">
-                      {product.category} • {product.subcategory}
-                    </p>
+            {/* Products List Section */}
+            <div className="bg-white p-6 rounded-lg shadow-sm">
+              <h2 className="text-xl font-medium mb-6 uppercase">Your Products</h2>
+              <div className="space-y-6">
+                {products.map((product) => (
+                  <div key={product._id} className="flex items-center space-x-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                    <img
+                      src={product.imageUrl} // Using Cloudinary URL directly
+                      alt={product.name}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-medium">{product.name}</h3>
+                      <p className="text-gray-600">${parseFloat(product.price).toFixed(2)}</p>
+                      <p className="text-gray-500 text-sm">
+                        {product.category} • {product.subcategory}
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
+                      >
+                        <Pencil size={20} />
+                      </button>
+                      <button
+                        onClick={() => {
+                          setProductToDelete(product);
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="p-2 text-red-600 hover:text-red-700 transition-colors"
+                      >
+                        <Trash2 size={20} />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="p-2 text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                      <Pencil size={20} />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setProductToDelete(product);
-                        setIsDeleteModalOpen(true);
-                      }}
-                      className="p-2 text-red-600 hover:text-red-700 transition-colors"
-                    >
-                      <Trash2 size={20} />
-                    </button>
+                ))}
+                {products.length === 0 && (
+                  <div className="text-center text-gray-500 py-8">
+                    No products added yet
                   </div>
-                </div>
-              ))}
-              {products.length === 0 && (
-                <div className="text-center text-gray-500 py-8">
-                  No products added yet
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
@@ -370,6 +412,6 @@ const onSubmit = async (data) => {
       <div className="mt-12">
         <Footer />
       </div>
-    </div>
+    </>
   );
 }

@@ -39,6 +39,20 @@ const MakersVaultHero = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    const storedUserData = localStorage.getItem('userData');
+    if (storedUserData) {
+      try {
+        const parsedData = JSON.parse(storedUserData)
+        setUserData(parsedData)
+        console.log('Loaded user data:', parsedData) // For debugging
+      } catch (error) {
+        console.error('Error parsing userData:', error)
+      }
+    }
+  }, [])
 
   const slides = [
     {
@@ -67,6 +81,20 @@ const MakersVaultHero = () => {
     navigate('/ecommerce-follow-along/seller');
   };
 
+  const renderSellerButton = () => {
+    if (userData?.isSeller && userData?.currentRole === 'seller') {
+      return (
+        <button 
+          onClick={handleProfileClick} 
+          className="px-6 py-2 text-white border border-white-400 rounded-full hover:bg-white hover:text-black transition-colors"
+        >
+          Your Products
+        </button>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="min-h-screen bg-white p-6 lg:p-8 mb-10 flex flex-col">
       <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
@@ -93,9 +121,7 @@ const MakersVaultHero = () => {
             >
               Perfumes
             </a>
-            <button onClick={handleProfileClick} className="px-6 py-2 text-white border border-white-400 rounded-full hover:bg-white hover:text-black transition-colors">
-              Be a seller
-            </button>         
+            {renderSellerButton()}        
           </div>
 
           <div className="flex items-center space-x-6">
@@ -111,7 +137,8 @@ const MakersVaultHero = () => {
             >
               <Heart size={22} />
             </button>
-            <button 
+            <button
+              onClick={() => navigate('/ecommerce-follow-along/cart')} 
               className="text-white hover:text-gray-200 transition-colors"
             >
               <ShoppingCart size={22} />
