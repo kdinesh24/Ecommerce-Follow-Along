@@ -24,6 +24,11 @@ const Cart = () => {
       if (!token) {
         throw new Error('No token found');
       }
+      
+      // Decode token to check user ID (for debugging)
+      const tokenPayload = JSON.parse(atob(token.split('.')[1]));
+      console.log('Current user ID from token:', tokenPayload.userId);
+
       const response = await axios.get("http://localhost:3000/api/cart", {
         headers: { 
           'Authorization': `Bearer ${token}`,
@@ -31,13 +36,15 @@ const Cart = () => {
         },
         withCredentials: true
       });
+      
+      console.log('Cart response:', response.data);
       setCart(response.data.items || []);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching cart:", error);
       setLoading(false);
       if (error.response?.status === 401 || error.message === 'No token found') {
-        localStorage.removeItem('token'); // Clear invalid token
+        localStorage.removeItem('token');
         navigate('/ecommerce-follow-along/login');
         toast.error('Please login to view your cart');
       }
@@ -60,17 +67,22 @@ const Cart = () => {
     if (newQuantity < 1) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.post(
+      console.log('Updating quantity for product:', productId, 'to:', newQuantity);
+      
+      const response = await axios.post(
         "http://localhost:3000/api/cart/add",
         { productId, quantity: newQuantity },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
+      console.log('Update quantity response:', response.data);
       fetchCart();
     } catch (error) {
       console.error("Error updating quantity:", error);
     }
   };
 
+  
   const calculateTotal = () => {
     return cart.reduce((total, item) => total + item.productId.price * item.quantity, 0);
   };

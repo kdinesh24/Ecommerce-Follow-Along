@@ -3,6 +3,7 @@ import axios from "axios";
 import ProductCard from "./ProductCard";
 import { ChevronDown } from "lucide-react";
 import Footer from "./Footer";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Homepage() {
     const [products, setProducts] = useState([]);
@@ -19,7 +20,7 @@ export default function Homepage() {
         const fetchProducts = async () => {    
             try {
                 const response = await axios.get("http://localhost:3000/items/products");
-                console.log('Products from API:', response.data); // Add this
+                console.log('Products from API:', response.data);
                 setProducts(response.data);
                 setFilteredProducts(response.data);
             } catch (error) {
@@ -62,107 +63,213 @@ export default function Homepage() {
         setSortMenuOpen(false);
     };
 
+    // Animation variants
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                when: "beforeChildren",
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const productVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.5,
+                ease: "easeOut"
+            }
+        }
+    };
+
+    const dropdownVariants = {
+        hidden: { opacity: 0, y: -10, scale: 0.95 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            transition: {
+                duration: 0.2,
+                ease: "easeOut"
+            }
+        },
+        exit: {
+            opacity: 0,
+            y: -10,
+            scale: 0.95,
+            transition: {
+                duration: 0.2,
+                ease: "easeIn"
+            }
+        }
+    };
+
     if (loading) return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-950 text-gray-200">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-        </div>
+        <motion.div 
+            className="flex items-center justify-center min-h-screen bg-gray-950 text-gray-200"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+        >
+            <motion.div 
+                className="h-12 w-12 border-b-2 border-white rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+        </motion.div>
     );
 
     if (error) return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-950 text-red-400">
+        <motion.div 
+            className="flex items-center justify-center min-h-screen bg-gray-950 text-red-400"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+        >
             {error}
-        </div>
+        </motion.div>
     );
 
     return (
-        <div className="bg-white px-4 sm:px-6 lg:px-20 pb-5 mt-[-3rem]">
+        <motion.div 
+            className="bg-white px-4 sm:px-6 lg:px-20 pb-5 mt-[-3rem]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
             <div className="container mx-auto max-w-7xl">
-                <div className="flex justify-between items-center mb-8">
+                <motion.div 
+                    className="flex justify-between items-center mb-8"
+                    initial={{ y: -20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                >
                     <h1 className="text-3xl font-bold ml-[-1rem]">Featured Products</h1>
                     
                     <div className="relative">
-                        <button
+                        <motion.button
                             onClick={() => setSortMenuOpen(!sortMenuOpen)}
                             className="bg-transparent border-2 border-black text-black px-6 py-2 rounded-full hover:bg-black hover:text-white transition-colors duration-300 flex items-center space-x-2"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                         >
                             <span>Sort by</span>
-                            <ChevronDown size={16} />
-                        </button>
+                            <motion.div
+                                animate={{ rotate: sortMenuOpen ? 180 : 0 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <ChevronDown size={16} />
+                            </motion.div>
+                        </motion.button>
 
-                        {sortMenuOpen && (
-                            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                                <div className="p-2 space-y-1">
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2">Price</h3>
-                                    {[
-                                        { id: "price-low", label: "Price: Low to High" },
-                                        { id: "price-high", label: "Price: High to Low" },
-                                    ].map((option) => (
-                                        <button
-                                            key={option.id}
-                                            onClick={() => handleSort(option.id)}
-                                            className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
-                                                activeSortOption === option.id
-                                                    ? "bg-black text-white"
-                                                    : "text-black hover:bg-black hover:text-white"
-                                            }`}
-                                        >
-                                            {option.label}
-                                        </button>
-                                    ))}
+                        <AnimatePresence>
+                            {sortMenuOpen && (
+                                <motion.div 
+                                    className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+                                    variants={dropdownVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    exit="exit"
+                                >
+                                    <div className="p-2 space-y-1">
+                                        <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2">Price</h3>
+                                        {[
+                                            { id: "price-low", label: "Price: Low to High" },
+                                            { id: "price-high", label: "Price: High to Low" },
+                                        ].map((option) => (
+                                            <motion.button
+                                                key={option.id}
+                                                onClick={() => handleSort(option.id)}
+                                                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors ${
+                                                    activeSortOption === option.id
+                                                        ? "bg-black text-white"
+                                                        : "text-black hover:bg-black hover:text-white"
+                                                }`}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {option.label}
+                                            </motion.button>
+                                        ))}
 
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">Category</h3>
-                                    {categories.map((category) => (
-                                        <button
-                                            key={category}
-                                            onClick={() => handleSort(category)}
-                                            className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors capitalize ${
-                                                activeSortOption === category
-                                                    ? "bg-black text-white"
-                                                    : "text-black hover:bg-black hover:text-white"
-                                            }`}
-                                        >
-                                            {category}
-                                        </button>
-                                    ))}
+                                        <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">Category</h3>
+                                        {categories.map((category) => (
+                                            <motion.button
+                                                key={category}
+                                                onClick={() => handleSort(category)}
+                                                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors capitalize ${
+                                                    activeSortOption === category
+                                                        ? "bg-black text-white"
+                                                        : "text-black hover:bg-black hover:text-white"
+                                                }`}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {category}
+                                            </motion.button>
+                                        ))}
 
-                                    <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">For</h3>
-                                    {subcategories.map((subcategory) => (
-                                        <button
-                                            key={subcategory}
-                                            onClick={() => handleSort(subcategory)}
-                                            className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors capitalize ${
-                                                activeSortOption === subcategory
-                                                    ? "bg-black text-white"
-                                                    : "text-black hover:bg-black hover:text-white"
-                                            }`}
-                                        >
-                                            {subcategory}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
+                                        <h3 className="text-xs font-semibold text-gray-500 uppercase px-3 pb-2 pt-2">For</h3>
+                                        {subcategories.map((subcategory) => (
+                                            <motion.button
+                                                key={subcategory}
+                                                onClick={() => handleSort(subcategory)}
+                                                className={`w-full text-left px-3 py-2 text-sm rounded-md transition-colors capitalize ${
+                                                    activeSortOption === subcategory
+                                                        ? "bg-black text-white"
+                                                        : "text-black hover:bg-black hover:text-white"
+                                                }`}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {subcategory}
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
-                </div>
+                </motion.div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10">
+                <motion.div 
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-7 gap-y-10"
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                >
                     {filteredProducts.map((product) => (
-                        <ProductCard
+                        <motion.div
                             key={product._id}
-                            _id={product._id}
-                            name={product.name}
-                            description={product.description}
-                            price={parseFloat(product.price)}
-                            image={product.imageUrl}
-                            category={product.category}
-                            subcategory={product.subcategory}
-                        />
+                            variants={productVariants}
+                            layout
+                        >
+                            <ProductCard
+                                _id={product._id}
+                                name={product.name}
+                                description={product.description}
+                                price={parseFloat(product.price)}
+                                image={product.imageUrl}
+                                category={product.category}
+                                subcategory={product.subcategory}
+                            />
+                        </motion.div>
                     ))}
-                </div>
+                </motion.div>
             </div>
-            <div className="mt-3">
+            <motion.div 
+                className="mt-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+            >
                 <Footer />
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }

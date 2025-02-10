@@ -44,7 +44,18 @@ This project is a full-fledged E-Commerce Application using the MERN stack (Mong
 - **Error Handling**: Implemented basic error handling.
 - **GitHub Updates**: Updated repository with backend structure.
 
-
+```
+project-root/
+├── backend/
+│   ├── routes/         # Defines API routes
+│   ├── controllers/    # Contains route handling logic
+│   ├── models/         # Defines MongoDB schemas using Mongoose
+│   ├── middlewares/    # Includes middleware for error handling
+│   ├── config/         # Stores database configuration
+│   ├── utils/          # (Optional) Helper functions
+│   └── server.js       # Main server file
+└── frontend/           # Frontend-related code
+```
 
 ---
 
@@ -105,7 +116,35 @@ This project is a full-fledged E-Commerce Application using the MERN stack (Mong
 - **Testing**: Verified form functionality and image uploads.
 - **GitHub Updates**: Updated repository with product form.
 
+```
+project-root/
+├── frontend/
+│   ├── dist/               # Production build output
+│   ├── node_modules/       # Dependencies
+│   ├── src/                # Main source code
+│   │   ├── components/     # Reusable UI components
+│   │   │   ├── Footer.jsx
+│   │   │   ├── HeroSection.jsx
+│   │   │   ├── HomePage.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── ProductCard.jsx
+│   │   │   └── ProfilePage.jsx
+│   │   ├── styles/         # CSS or Tailwind styles
+│   │   ├── App.jsx         # Root component
+│   │   ├── main.jsx        # React entry point
+│   │   ├── index.html      # Main HTML file
+│   ├── .gitignore          # Git ignore file
+│   ├── eslint.config.js    # ESLint configuration
+│   ├── package-lock.json   # Dependency lock file
+│   ├── package.json        # Project dependencies and scripts
+│   ├── postcss.config.js   # PostCSS configuration
+│   ├── tailwind.config.js  # TailwindCSS configuration
+│   ├── vite.config.js      # Vite configuration
+├── .gitignore              # Global Git ignore file
+├── package.json            # Root package file
+└── README.md               # Documentation
 
+```
 
 ---
 
@@ -129,16 +168,175 @@ This project is a full-fledged E-Commerce Application using the MERN stack (Mong
 - **Understanding Data Flow**: Learned how to send, receive, and display data using API calls.
 - **GitHub Updates**: Committed changes for API integration and dynamic rendering.
 
+```
+project-root/
+├── backend/
+│   ├── config/         # Stores database and multer configurations
+│   │   ├── database.js
+│   │   └── multer.js
+│   ├── controllers/    # Contains route handling logic
+│   │   ├── product.controller.js
+│   │   └── user.controller.js
+│   ├── models/         # Defines MongoDB schemas using Mongoose
+│   │   ├── product.model.js
+│   │   └── user.model.js
+│   ├── routes/         # Defines API routes
+│   │   ├── product.routes.js
+│   │   └── user.routes.js
+│   ├── uploads/        # Stores uploaded files
+│   ├── utils/          # (Optional) Helper functions
+│   ├── node_modules/   # Node.js dependencies
+│   ├── .env            # Environment variables
+│   ├── package-lock.json
+│   ├── package.json
+│   └── server.js       # Main server file
+├── frontend/           # Frontend-related code
+├── .gitignore          # Git ignore file
+├── package.json        # Root package file
+└── README.md           # Documentation
+
+```
 
 ---
+
 ## Milestone 12: My Products Page with User-Specific Product Display
 
 - **Endpoint Creation**: Developed a GET endpoint to fetch all products associated with the logged-in user's email from MongoDB.
 - **Frontend Integration**: Wrote a function in the frontend to retrieve user-specific product data from the backend.
-- **Dynamic Display**: Utilized the existing product card component to dynamically display the fetched products on the "My Products"        page.
+- **Dynamic Display**: Utilized the existing product card component to dynamically display the fetched products on the "My Products" page.
 - **Data Filtering**: Implemented filtering logic on the backend to ensure only products associated with the user's email are retrieved.
 - **Testing**: Verified the functionality of the endpoint and the dynamic display using browser tools and Postman.
 - **Future Enhancements**: Considered adding options for editing or deleting user-specific products.
 - **GitHub Updates**: Committed all changes related to the endpoint, frontend integration, and dynamic display to the repository.
+
+---
+
+## Milestone 13: Product Update Endpoint and Form Auto-fill
+
+- **Update Endpoint**: Developed a PUT endpoint to receive updated product data and modify the corresponding document in MongoDB.
+- **Frontend Integration**: Added an "Edit" button to the product card. Clicking it pre-fills the product form with existing data for editing.
+- **Form Auto-fill**: Implemented functionality to populate the product form with the selected product's details, enabling easy modification.
+- **Data Persistence**: Ensured that the updated product data is correctly saved to the MongoDB database.
+- **Testing**: Verified the update functionality using Postman and by testing the edit flow in the application.
+- **GitHub Updates**: Committed all changes related to the update endpoint and form auto-fill to the repository.
+
+---
+
+## Milestone 14: Product Delete Endpoint
+
+- **Delete Endpoint**: Created a DELETE endpoint to remove a product from MongoDB based on its ID.
+- **Frontend Integration**: Added a "Delete" button to the product card. Clicking it triggers the deletion of the corresponding product.
+- **Confirmation**: Implemented a confirmation dialog before deleting a product to prevent accidental deletions.
+- **Data Removal**: Ensured that the product is successfully removed from the MongoDB database.
+- **Testing**: Verified the delete functionality using Postman and by testing the delete flow in the application.
+- **GitHub Updates**: Committed all changes related to the delete endpoint and frontend integration to the repository.
+
+```
+server/
+├── config/
+│   ├── cloudinary.js
+│   ├── database.js
+│   └── multer.js
+├── controllers/
+│   ├── product.controller.js
+│   └── user.controller.js
+├── middlewares/
+│   └── auth.middleware.js
+├── models/
+│   ├── product.model.js
+│   └── user.model.js
+├── routes/
+│   ├── product.routes.js
+│   └── user.routes.js
+├── uploads/
+├── .env
+├── package-lock.json
+├── package.json
+├── server.js
+└── .gitignore
+```
+
+---
+
+## Milestone 15: Navigation Component
+
+- **Navigation Component**: Created a reusable `Nav` component with links to "Home," "My Products," "Add Product," and "Cart" pages.
+- **Responsive Design**: Made the `Nav` component responsive to different screen sizes using Tailwind CSS.
+- **Page Integration**: Integrated the `Nav` component into all pages of the application, providing consistent navigation.
+- **Smooth Navigation**: Ensured smooth transitions between pages using React Router.
+- **Testing**: Verified the navigation functionality and responsiveness across different devices.
+- **GitHub Updates**: Committed all changes related to the `Nav` component and its integration to the repository.
+
+---
+
+## Milestone 16: Product Details Page
+
+- **Product Details Page**: Created a new page to display detailed information about individual products.
+- **Dynamic Data**: Implemented dynamic rendering of product details based on the selected product.
+- **Quantity and Add to Cart**: Added quantity selection and "Add to Cart" functionality to the product details page.
+- **Testing**: Verified the product details page functionality and data display.
+- **GitHub Updates**: Committed all changes related to the product details page to the repository.
+
+```
+client/
+├── src/
+│   ├── components/
+│   │   ├── CategoryCard.jsx
+│   │   ├── Footer.jsx
+│   │   ├── Header.jsx
+│   │   ├── ProductCard.jsx
+│   │   └── ProductForm.jsx
+│   ├── pages/
+│   │   ├── FavouritePage.jsx
+│   │   ├── LandingPage.jsx
+│   │   ├── LoginPage.jsx
+│   │   ├── ProductPage.jsx
+│   │   ├── ProfilePage.jsx
+│   │   ├── SearchPage.jsx
+│   │   └── SignupPage.jsx
+│   ├── styles/
+│   ├── App.jsx
+│   └── main.jsx
+├── .gitignore
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+└── vite.config.js
+```
+
+---
+
+## Milestone 17: Cart Functionality Implementation
+
+- **Cart Schema Design**: Modified user schema to store cart products with necessary product details and quantities  
+- **Cart Storage Endpoint**: Created POST endpoint to handle product details reception and persistent cart storage in database  
+- **Data Validation**: Implemented checks for product availability and valid quantities before cart updates  
+- **Testing**: Verified cart item persistence and user-specific cart isolation  
+- **GitHub Updates**: Committed schema modifications and endpoint implementation to repository  
+
+---
+
+## Milestone 18: Cart Data Retrieval System
+
+- **Cart Data Endpoint**: Developed GET endpoint to fetch all cart products using authenticated user's email  
+- **Product Population**: Implemented product data population from separate collection for complete cart information  
+- **Security Checks**: Added authentication middleware to ensure user-specific cart access  
+- **Testing**: Validated endpoint response structure and data accuracy  
+- **GitHub Updates**: Pushed cart retrieval endpoint implementation  
+
+---
+
+## Milestone 19: Cart Management Interface
+
+- **Cart Page Implementation**: Created frontend cart page with dynamic product display using fetched cart data  
+- **Quantity Controls**: Added interactive +/- buttons for real-time quantity adjustment per product  
+- **Quantity Update Endpoints**: Built PUT endpoints for increment/decrement operations with inventory checks  
+- **Live Price Calculation**: Implemented frontend total calculation based on quantity changes  
+- **Sync Optimization**: Added debouncing to quantity update API calls  
+- **Testing**: Verified quantity synchronization between frontend and database  
+- **GitHub Updates**: Committed cart page components and quantity management endpoints  
 
 ---

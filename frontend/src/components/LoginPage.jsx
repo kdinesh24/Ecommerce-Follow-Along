@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Eye, EyeOff } from 'lucide-react'
 import LoginOptionsModal from './LoginOptionsModal'
+import { motion, AnimatePresence } from "framer-motion"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
@@ -12,6 +13,31 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [tempLoginData, setTempLoginData] = useState(null)
   const navigate = useNavigate()
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+        staggerChildren: 0.1
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  }
+
+  const buttonVariants = {
+    hover: { scale: 1.02 },
+    tap: { scale: 0.98 }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -68,7 +94,13 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex">
+    <motion.div 
+      className="min-h-screen flex"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <AnimatePresence>
       {isModalOpen && (
         <LoginOptionsModal 
           isOpen={isModalOpen}
@@ -76,20 +108,40 @@ const LoginPage = () => {
           onSelectRole={handleRoleSelect}
         />
       )}
+      </AnimatePresence>
+      
       {/* Left Section */}
       <div className="w-1/2 bg-white p-8 flex items-center justify-center">
-        <div className="w-full max-w-md">
+        <motion.div 
+          className="w-full max-w-md"
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {/* Logo */}
-          <div className="mb-8">
+          <motion.div className="mb-8" variants={itemVariants}>
             <img src="/path-to-your-logo.svg" alt="CubeFactory" className="h-8" />
-          </div>
+          </motion.div>
 
           {/* Welcome Text */}
-          <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-          <p className="text-gray-600 mb-8">Please enter your details</p>
+          <motion.h1 
+            className="text-3xl font-bold mb-2"
+            variants={itemVariants}
+          >
+            Welcome back
+          </motion.h1>
+          <motion.p 
+            className="text-gray-600 mb-8"
+            variants={itemVariants}
+          >
+            Please enter your details
+          </motion.p>
 
           {/* Google Sign In Button */}
-          <button
+          <motion.button
+            variants={{ ...itemVariants, ...buttonVariants }}
+            whileHover="hover"
+            whileTap="tap"
             type="button"
             onClick={handleGoogleLogin}
             className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-md py-3 mb-4 hover:bg-gray-50 transition-colors"
@@ -101,21 +153,25 @@ const LoginPage = () => {
               className="w-5 h-5"
             />
             Sign in with Google
-          </button>
+          </motion.button>
 
           {/* Divider */}
-          <div className="relative my-6">
+          <motion.div className="relative my-6" variants={itemVariants}>
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-2 bg-white text-gray-500">or</span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
+          <motion.form 
+            onSubmit={handleSubmit} 
+            className="space-y-4"
+            variants={containerVariants}
+          >
+            <motion.div variants={itemVariants}>
               <label className="block text-sm mb-2">Email address</label>
               <input
                 type="email"
@@ -125,9 +181,9 @@ const LoginPage = () => {
                 required
                 disabled={isLoading}
               />
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={itemVariants}>
               <label className="block text-sm mb-2">Password</label>
               <div className="relative">
                 <input
@@ -146,24 +202,33 @@ const LoginPage = () => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
-            <div className="flex items-center justify-end">
+            <motion.div 
+              className="flex items-center justify-end"
+              variants={itemVariants}
+            >
               <a href="#" className="text-sm text-blue-500 hover:underline">
                 Forgot password?
               </a>
-            </div>
+            </motion.div>
 
-            <button
+            <motion.button
+              variants={{ ...itemVariants, ...buttonVariants }}
+              whileHover="hover"
+              whileTap="tap"
               type="submit"
               className="w-full bg-black text-white rounded-md py-3 hover:bg-gray-800 transition-colors disabled:bg-gray-400"
               disabled={isLoading}
             >
               {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </form>
+            </motion.button>
+          </motion.form>
 
-          <p className="mt-6 text-center text-sm text-gray-600">
+          <motion.p 
+            className="mt-6 text-center text-sm text-gray-600"
+            variants={itemVariants}
+          >
             Don't have an account?{" "}
             <a
               onClick={() => navigate("/ecommerce-follow-along/signup")}
@@ -171,25 +236,35 @@ const LoginPage = () => {
             >
               Sign up
             </a>
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
       </div>
 
       {/* Right Section - Hero Image */}
-      <div className="w-1/2 relative">
+      <motion.div 
+        className="w-1/2 relative"
+        initial={{ x: 100, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
+      >
         <div className="absolute inset-0 bg-cover bg-center" style={{
           backgroundImage: "url('https://diorama.dam-broadcast.com/cdn-cgi/image/width=640,format=auto/pm_11872_985_985075-y4fftof333-whr.jpg')"
         }}>
-          <div className="absolute bottom-16 left-16 text-white">
+          <motion.div 
+            className="absolute bottom-16 left-16 text-white"
+            initial={{ y: 50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.7 }}
+          >
             <h2 className="text-4xl font-bold mb-4">Bring your ideas to life.</h2>
             <p className="text-xl">
               Sign up for free and enjoy access to all features<br />
               for 30 days. No credit card required.
             </p>
-          </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }
 

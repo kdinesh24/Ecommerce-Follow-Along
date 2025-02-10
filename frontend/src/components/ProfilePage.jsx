@@ -1,291 +1,316 @@
-import { useState, useEffect } from "react";
-import { 
-  Settings, 
-  Package, 
-  CreditCard, 
-  User, 
-  LogOut,
-  ChevronRight
-} from "lucide-react";
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+"use client"
+
+import { useState, useEffect } from "react"
+import { motion } from "framer-motion"
+import { Settings, Package, CreditCard, User, LogOut, ChevronRight } from "lucide-react"
+import { useNavigate } from "react-router-dom"
+import axios from "axios"
+
+const fadeIn = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.5 } },
+}
+
+const slideIn = {
+  hidden: { x: -20, opacity: 0 },
+  visible: { x: 0, opacity: 1, transition: { duration: 0.5 } },
+}
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
+  const [activeNavItem, setActiveNavItem] = useState('')
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
+    name: "",
+    email: "",
     isSeller: false,
-    currentRole: 'customer'
-  });
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [saveStatus, setSaveStatus] = useState('');
+    currentRole: "customer",
+  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [saveStatus, setSaveStatus] = useState("")
 
   useEffect(() => {
-    checkAuthAndFetchProfile();
-  }, []);
+    checkAuthAndFetchProfile()
+  }, [])
 
   const checkAuthAndFetchProfile = async () => {
     try {
-      setIsLoading(true);
-      
-      // First, check if we have userData in localStorage
-      const storedUserData = localStorage.getItem('userData');
+      setIsLoading(true)
+
+      const storedUserData = localStorage.getItem("userData")
       if (!storedUserData) {
-        throw new Error('No stored user data');
+        throw new Error("No stored user data")
       }
 
-      const userDataFromStorage = JSON.parse(storedUserData);
+      const userDataFromStorage = JSON.parse(storedUserData)
 
-      // Try to make an authenticated request to verify the session
-      const response = await axios.post('http://localhost:3000/users/login', {
-        email: userDataFromStorage.email,
-        password: userDataFromStorage.password || '' // Include if you stored it
-      }, {
-        withCredentials: true
-      });
+      const response = await axios.post(
+        "http://localhost:3000/users/login",
+        {
+          email: userDataFromStorage.email,
+          password: userDataFromStorage.password || "",
+        },
+        {
+          withCredentials: true,
+        },
+      )
 
       if (response.data && response.data.user) {
-        // Update formData with the combination of server data and stored preferences
         setFormData({
-          name: response.data.user.name || userDataFromStorage.name || '',
-          email: response.data.user.email || userDataFromStorage.email || '',
+          name: response.data.user.name || userDataFromStorage.name || "",
+          email: response.data.user.email || userDataFromStorage.email || "",
           isSeller: response.data.user.isSeller || userDataFromStorage.isSeller || false,
-          currentRole: userDataFromStorage.currentRole || 'customer'
-        });
+          currentRole: userDataFromStorage.currentRole || "customer",
+        })
 
-        // Update localStorage with fresh data while preserving role
         const updatedData = {
           ...response.data.user,
-          currentRole: userDataFromStorage.currentRole
-        };
-        localStorage.setItem('userData', JSON.stringify(updatedData));
+          currentRole: userDataFromStorage.currentRole,
+        }
+        localStorage.setItem("userData", JSON.stringify(updatedData))
       } else {
-        throw new Error('Invalid response from server');
+        throw new Error("Invalid response from server")
       }
-
     } catch (err) {
-      console.error('Auth check error:', err);
-      setError(err.message);
-      // Only navigate to login if there's no valid stored data
-      if (!localStorage.getItem('userData')) {
-        navigate('/ecommerce-follow-along/login');
+      console.error("Auth check error:", err)
+      setError(err.message)
+      if (!localStorage.getItem("userData")) {
+        navigate("/ecommerce-follow-along/login")
       } else {
-        // Use stored data as fallback
-        const fallbackData = JSON.parse(localStorage.getItem('userData'));
+        const fallbackData = JSON.parse(localStorage.getItem("userData"))
         setFormData({
-          name: fallbackData.name || '',
-          email: fallbackData.email || '',
+          name: fallbackData.name || "",
+          email: fallbackData.email || "",
           isSeller: fallbackData.isSeller || false,
-          currentRole: fallbackData.currentRole || 'customer'
-        });
+          currentRole: fallbackData.currentRole || "customer",
+        })
       }
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:3000/users/logout', {}, {
-        withCredentials: true
-      });
+      await axios.post(
+        "http://localhost:3000/users/logout",
+        {},
+        {
+          withCredentials: true,
+        },
+      )
     } catch (err) {
-      console.error('Logout error:', err);
+      console.error("Logout error:", err)
     } finally {
-      // Always clear localStorage and redirect
-      localStorage.removeItem('userData');
-      navigate('/ecommerce-follow-along/login');
+      localStorage.removeItem("userData")
+      navigate("/ecommerce-follow-along/login")
     }
-  };
+  }
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
+    const { name, value } = e.target
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
-    }));
-  };
+      [name]: value,
+    }))
+  }
 
   const handleSaveChanges = async () => {
     try {
-      setSaveStatus('Saving...');
-      
-      // First update localStorage
-      const currentStoredData = JSON.parse(localStorage.getItem('userData') || '{}');
+      setSaveStatus("Saving...")
+
+      const currentStoredData = JSON.parse(localStorage.getItem("userData") || "{}")
       const updatedData = {
         ...currentStoredData,
         name: formData.name,
-        email: formData.email
-      };
-      localStorage.setItem('userData', JSON.stringify(updatedData));
-      
-      // Then try to update server
+        email: formData.email,
+      }
+      localStorage.setItem("userData", JSON.stringify(updatedData))
+
       try {
-        const response = await axios.put('http://localhost:3000/users/update-profile', {
-          name: formData.name,
-          email: formData.email
-        }, {
-          withCredentials: true
-        });
+        const response = await axios.put(
+          "http://localhost:3000/users/update-profile",
+          {
+            name: formData.name,
+            email: formData.email,
+          },
+          {
+            withCredentials: true,
+          },
+        )
 
         if (response.data && response.data.user) {
-          // Update localStorage with server response while preserving role
           const serverUpdatedData = {
             ...response.data.user,
-            currentRole: updatedData.currentRole
-          };
-          localStorage.setItem('userData', JSON.stringify(serverUpdatedData));
+            currentRole: updatedData.currentRole,
+          }
+          localStorage.setItem("userData", JSON.stringify(serverUpdatedData))
         }
       } catch (serverError) {
-        console.warn('Server update failed, using localStorage only:', serverError);
+        console.warn("Server update failed, using localStorage only:", serverError)
       }
 
-      setSaveStatus('Changes saved successfully!');
-      setTimeout(() => setSaveStatus(''), 3000);
+      setSaveStatus("Changes saved successfully!")
+      setTimeout(() => setSaveStatus(""), 3000)
     } catch (err) {
-      console.error('Save error:', err);
-      setSaveStatus('Failed to save changes');
-      setTimeout(() => setSaveStatus(''), 3000);
+      console.error("Save error:", err)
+      setSaveStatus("Failed to save changes")
+      setTimeout(() => setSaveStatus(""), 3000)
     }
-  };
+  }
 
   const handleSwitchRole = () => {
-    const newRole = formData.currentRole === 'seller' ? 'customer' : 'seller';
-    
-    // Update localStorage
-    const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+    const newRole = formData.currentRole === "seller" ? "customer" : "seller"
+
+    const userData = JSON.parse(localStorage.getItem("userData") || "{}")
     const updatedData = {
       ...userData,
-      currentRole: newRole
-    };
-    localStorage.setItem('userData', JSON.stringify(updatedData));
-    
-    setFormData(prev => ({
+      currentRole: newRole,
+    }
+    localStorage.setItem("userData", JSON.stringify(updatedData))
+
+    setFormData((prev) => ({
       ...prev,
-      currentRole: newRole
-    }));
-  };
+      currentRole: newRole,
+    }))
+  }
 
   const getUserTypeDisplay = () => {
     if (!formData.isSeller) {
-      return 'Customer';
+      return "Customer"
     }
-    return formData.currentRole === 'seller' ? 'Seller' : 'Customer';
-  };
+    return formData.currentRole === "seller" ? "Seller" : "Customer"
+  }
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-gray-600">Loading...</div>
-      </div>
-    );
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={fadeIn}
+        className="min-h-screen flex items-center justify-center bg-gray-50"
+      >
+        <div className="text-gray-600 text-xl font-semibold">Loading...</div>
+      </motion.div>
+    )
   }
-
-
-
+  const navItems = ["Home", "Lifestyle", "Shoes", "Perfume"]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
-      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl p-6 border border-gray-100">
-          <div className="flex items-center space-x-12">
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/home')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Home</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/lifestyle')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Lifestyle</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/shoes')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Shoes</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/perfume')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Perfume</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
+    <motion.div initial="hidden" animate="visible" variants={fadeIn} className="min-h-screen bg-gray-50">
+      {/* Improved Navigation Bar */}
+      <div className="fixed top-0 left-0 right-0 flex justify-center z-50 p-6">
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            duration: 0.6 
+          }}
+          className="bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 px-8 py-4"
+        >
+          <div className="flex items-center gap-12">
+            {navItems.map((item) => (
+              <motion.div
+                key={item}
+                className="relative"
+                onClick={() => {
+                  setActiveNavItem(item)
+                  navigate(`/ecommerce-follow-along/${item.toLowerCase()}`)
+                }}
+              >
+                <motion.button
+                  className="relative text-gray-700 hover:text-black transition-all duration-200 px-2 py-1"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="text-base font-medium">{item}</span>
+                  {activeNavItem === item && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-black opacity-0"
+                  whileHover={{ opacity: 0.3 }}
+                  transition={{ duration: 0.2 }}
+                />
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </nav>
+        </motion.div>
+      </div>
+
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-32">
         <div className="flex gap-8">
           {/* Left Sidebar */}
-          <div className="w-72">
+          <motion.div className="w-72" variants={slideIn}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
               <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
-                <div className="w-20 h-20 bg-black rounded-full mx-auto mb-4 flex items-center justify-center">
+                <motion.div
+                  className="w-20 h-20 bg-black rounded-full mx-auto mb-4 flex items-center justify-center"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
                   <span className="text-2xl font-bold text-white">
-                    {formData.name ? formData.name.charAt(0).toUpperCase() : 'U'}
+                    {formData.name ? formData.name.charAt(0).toUpperCase() : "U"}
                   </span>
-                </div>
+                </motion.div>
                 <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
                 <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
                 <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
                   {getUserTypeDisplay()}
                 </p>
               </div>
-              
+
               <nav className="space-y-2 p-4">
-                <button className="flex items-center w-full px-6 py-4 text-sm font-medium text-black bg-gray-50 rounded-xl border-l-4 border-black">
-                  <User className="w-5 h-5 mr-3" />
-                  Personal Info
-                  <ChevronRight className="w-5 h-5 ml-auto" />
-                </button>
-                
-                <button className="flex items-center w-full px-6 py-4 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-xl hover:text-black transition-colors duration-200">
-                  <Package className="w-5 h-5 mr-3" />
-                  Orders
-                  <ChevronRight className="w-5 h-5 ml-auto" />
-                </button>
-                
-                <button className="flex items-center w-full px-6 py-4 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-xl hover:text-black transition-colors duration-200">
-                  <CreditCard className="w-5 h-5 mr-3" />
-                  Payment Methods
-                  <ChevronRight className="w-5 h-5 ml-auto" />
-                </button>
-                
-                <button className="flex items-center w-full px-6 py-4 text-sm font-medium text-gray-600 hover:bg-gray-50 rounded-xl hover:text-black transition-colors duration-200">
-                  <Settings className="w-5 h-5 mr-3" />
-                  Settings
-                  <ChevronRight className="w-5 h-5 ml-auto" />
-                </button>
+                {[
+                  { icon: User, text: "Personal Info" },
+                  { icon: Package, text: "Orders" },
+                  { icon: CreditCard, text: "Payment Methods" },
+                  { icon: Settings, text: "Settings" },
+                ].map((item, index) => (
+                  <motion.button
+                    key={item.text}
+                    className={`flex items-center w-full px-6 py-4 text-sm font-medium ${
+                      index === 0
+                        ? "text-black bg-gray-50 rounded-xl border-l-4 border-black"
+                        : "text-gray-600 hover:bg-gray-50 rounded-xl hover:text-black"
+                    } transition-colors duration-200`}
+                    whileHover={{ x: 5 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <item.icon className="w-5 h-5 mr-3" />
+                    {item.text}
+                    <ChevronRight className="w-5 h-5 ml-auto" />
+                  </motion.button>
+                ))}
               </nav>
-              
+
               <div className="p-6">
-                <button
+                <motion.button
                   onClick={handleLogout}
                   className="w-full flex items-center justify-center px-4 py-3 border border-transparent text-sm font-medium rounded-xl text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <LogOut className="w-5 h-5 mr-2" />
                   Logout
-                </button>
+                </motion.button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Main Form */}
-          <div className="flex-1">
+          <motion.div className="flex-1" variants={slideIn}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
               <div className="pb-6 border-b border-gray-200">
                 <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
@@ -294,35 +319,31 @@ export default function ProfilePage() {
 
               <div className="mt-8">
                 <div className="space-y-8">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-colors duration-200"
-                      placeholder="Enter your full name"
-                    />
-                  </div>
+                  {["Full Name", "Email Address"].map((label, index) => (
+                    <motion.div
+                      key={label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                      <input
+                        type={index === 0 ? "text" : "email"}
+                        name={index === 0 ? "name" : "email"}
+                        value={formData[index === 0 ? "name" : "email"]}
+                        onChange={handleInputChange}
+                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-colors duration-200"
+                        placeholder={`Enter your ${label.toLowerCase()}`}
+                      />
+                    </motion.div>
+                  ))}
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-colors duration-200"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-
-                  <div className="flex items-center p-4 bg-gray-50 rounded-xl">
+                  <motion.div
+                    className="flex items-center p-4 bg-gray-50 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                  >
                     <div className="flex-1">
                       <h3 className="text-sm font-medium text-gray-900">Account Type</h3>
                       <p className="text-sm text-gray-500 mt-1">
@@ -330,7 +351,7 @@ export default function ProfilePage() {
                       </p>
                       {formData.isSeller && (
                         <p className="text-sm text-gray-500 mt-1">
-                          {formData.currentRole === 'customer' 
+                          {formData.currentRole === "customer"
                             ? "Switch to seller mode to access your seller dashboard"
                             : "Switch to customer mode to shop"}
                         </p>
@@ -338,43 +359,60 @@ export default function ProfilePage() {
                     </div>
                     {formData.isSeller && (
                       <div className="flex gap-2">
-                        <button
+                        <motion.button
                           onClick={handleSwitchRole}
                           className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
                         >
-                          Switch to {formData.currentRole === 'seller' ? 'Customer' : 'Seller'}
-                        </button>
-                        {formData.currentRole === 'seller' && (
-                          <button
-                            onClick={() => navigate('/ecommerce-follow-along/seller')}
+                          Switch to {formData.currentRole === "seller" ? "Customer" : "Seller"}
+                        </motion.button>
+                        {formData.currentRole === "seller" && (
+                          <motion.button
+                            onClick={() => navigate("/ecommerce-follow-along/seller")}
                             className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-900 transition-colors duration-200"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
                           >
                             Seller Dashboard
-                          </button>
+                          </motion.button>
                         )}
                       </div>
                     )}
-                  </div>
+                  </motion.div>
                 </div>
 
-                <div className="mt-8 flex items-center">
-                  <button
+                <motion.div
+                  className="mt-8 flex items-center"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  <motion.button
                     onClick={handleSaveChanges}
                     className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
                     Save Changes
-                  </button>
+                  </motion.button>
                   {saveStatus && (
-                    <span className={`ml-4 text-sm ${saveStatus.includes('success') ? 'text-green-600' : 'text-red-600'}`}>
+                    <motion.span
+                      className={`ml-4 text-sm ${saveStatus.includes("success") ? "text-green-600" : "text-red-600"}`}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                    >
                       {saveStatus}
-                    </span>
+                    </motion.span>
                   )}
-                </div>
+                </motion.div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
-    </div>
-  );
+    </motion.div>
+  )
 }
+

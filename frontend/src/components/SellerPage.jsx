@@ -1,9 +1,18 @@
+"use client"
+
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { Pencil, Trash2, X } from "lucide-react";
 import axios from "axios";
 import Footer from "./Footer";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+
+const fadeIn = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { duration: 0.5 } },
+}
 
 export default function SellerPage() {
   const {
@@ -23,6 +32,8 @@ export default function SellerPage() {
   const [productToDelete, setProductToDelete] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
   const navigate = useNavigate();
+  const [activeNavItem, setActiveNavItem] = useState('');
+  const navItems = ["Home", "Lifestyle", "Shoes", "Perfume"];
 
   const categories = ["clothing", "perfume", "shoe"];
   const subcategories = ["men", "women", "unisex"];
@@ -153,47 +164,55 @@ const onSubmit = async (data) => {
   );
 
   return (
-    <>
-      {/* Navigation Bar */}
-      <nav className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50">
-        <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl p-6 border border-gray-100">
-          <div className="flex items-center space-x-12">
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/home')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Home</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/lifestyle')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Lifestyle</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/shoes')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Shoes</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
-            
-            <button 
-              onClick={() => navigate('/ecommerce-follow-along/perfume')}
-              className="text-gray-700 hover:text-black transition-all duration-200 flex flex-col items-center group"
-            >
-              <span className="text-base font-semibold group-hover:scale-110 transform transition-transform">Perfume</span>
-              <div className="h-1 w-0 group-hover:w-full bg-black mt-1 transition-all duration-200"></div>
-            </button>
+    <motion.div initial="hidden" animate="visible" variants={fadeIn} className="min-h-screen bg-gray-50">
+      <div className="fixed top-0 left-0 right-0 flex justify-center z-50 p-6">
+        <motion.div
+          initial={{ y: -100, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ 
+            type: "spring",
+            stiffness: 100,
+            damping: 20,
+            duration: 0.6 
+          }}
+          className="bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 px-8 py-4"
+        >
+          <div className="flex items-center gap-12">
+            {navItems.map((item) => (
+              <motion.div
+                key={item}
+                className="relative"
+                onClick={() => {
+                  setActiveNavItem(item)
+                  navigate(`/ecommerce-follow-along/${item.toLowerCase()}`)
+                }}
+              >
+                <motion.button
+                  className="relative text-gray-700 hover:text-black transition-all duration-200 px-2 py-1"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="text-base font-medium">{item}</span>
+                  {activeNavItem === item && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-black"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </motion.button>
+                <motion.div
+                  className="absolute bottom-0 left-0 right-0 h-0.5 bg-black opacity-0"
+                  whileHover={{ opacity: 0.3 }}
+                  transition={{ duration: 0.2 }}
+                />
+              </motion.div>
+            ))}
           </div>
-        </div>
-      </nav>
+        </motion.div>
+      </div>
 
-      {/* Main Content */}
       <div className="min-h-screen bg-gray-50 text-gray-900 py-6 px-4 sm:px-6 lg:px-8 pt-32">
         <div className="container mx-auto max-w-6xl">
           <h1 className="text-4xl font-light mb-12 text-center uppercase">
@@ -409,9 +428,9 @@ const onSubmit = async (data) => {
         productName={productToDelete?.name}
       />
       
-      <div className="mt-12">
+      <div className="mt-24">
         <Footer />
       </div>
-    </>
+    </motion.div>
   );
 }
