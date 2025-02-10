@@ -10,6 +10,7 @@ import LifestylePage from "./components/LifestylePage";
 import PerfumesPage from "./components/PerfumesPage";
 import ProductInfo from "./components/ProductInfo";
 import Cart from "./components/Cart";
+import { Toaster } from 'react-hot-toast';
 
 function HomeLayout() {
   return (
@@ -36,7 +37,9 @@ function App() {
             <Route path="/ecommerce-follow-along/perfume" element={<PerfumesPage />} />
             <Route path="/ecommerce-follow-along/product/:id" element={<ProductInfo />} />
             <Route path="/ecommerce-follow-along/cart" element={<Cart />} />
+            
           </Routes>
+          <Toaster />
         </div>
 
   );

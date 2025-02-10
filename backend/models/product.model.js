@@ -9,7 +9,8 @@ const productSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   price: {
     type: Number,
@@ -19,24 +20,42 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['clothing', 'perfume', 'shoe']
+    enum: ['clothing', 'perfume', 'shoe'],
+    lowercase: true
   },
   subcategory: {
     type: String,
     required: true,
-    enum: ['men', 'women', 'unisex']
+    enum: ['men', 'women', 'unisex'],
+    lowercase: true
   },
   imageUrl: {
     type: String,
-    default: ''
+    required: true,
+    get: function(imageUrl) {
+      if (imageUrl && !imageUrl.startsWith('http')) {
+        return `http://localhost:3000/uploads/${imageUrl}`;
+      }
+      return imageUrl;
+    }
   },
   seller: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: false
+  },
+  inStock: {
+    type: Boolean,
+    default: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { getters: true },
+  toObject: { getters: true }
 });
+
+// Add index for better query performance
+productSchema.index({ category: 1, subcategory: 1 });
+productSchema.index({ name: 'text', description: 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

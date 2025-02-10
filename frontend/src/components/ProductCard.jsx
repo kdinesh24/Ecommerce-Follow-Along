@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+
 
 
 export default function ProductCard({
@@ -15,6 +18,44 @@ export default function ProductCard({
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const navigate = useNavigate();
+
+  const handleAddToCart = async (e) => {
+    e.stopPropagation();
+    if (!inStock) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login to add items to cart');
+        return;
+      }
+
+      await axios.post(
+        "http://localhost:3000/api/cart/add",
+        { productId: _id, quantity: 1 },
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+      
+      // Optional: Show success message
+      toast.success('Added to cart');
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token'); // Clear invalid token
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login again to add items to cart');
+      } else {
+        toast.error('Failed to add item to cart');
+      }
+    }
+  };
 
 
   const handleCardClick = (e) => {
@@ -62,8 +103,7 @@ export default function ProductCard({
         <div className="flex items-center justify-between">
           <p className="text-md font-semibold text-gray-900">${price.toFixed(2)}</p>
           <button 
-            
-           
+            onClick={handleAddToCart}
             className={`rounded-full p-2 text-white transition-colors ${
               inStock 
                 ? 'bg-black hover:bg-zinc-800' 

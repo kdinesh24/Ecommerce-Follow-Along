@@ -57,6 +57,7 @@ const LoginPage = () => {
         currentRole: role
       }
       localStorage.setItem('userData', JSON.stringify(userData))
+      localStorage.setItem('token', tempLoginData.token)
       navigate("/ecommerce-follow-along/home")
     }
   }

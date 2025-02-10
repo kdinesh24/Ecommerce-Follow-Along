@@ -46,6 +46,7 @@ require('./config/passport')(app);
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/items', productRoutes);
+app.use('/api/cart', require('./routes/cart.routes'));
 
 // Debug route
 app.get('/', (req, res) => {

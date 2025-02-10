@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import toast from 'react-hot-toast';
 
 const Cart = () => {
   const [cart, setCart] = useState([]);
@@ -9,20 +10,37 @@ const Cart = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate('/ecommerce-follow-along/login');
+      return;
+    }
     fetchCart();
-  }, []);
+  }, [navigate]);
 
   const fetchCart = async () => {
     try {
       const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error('No token found');
+      }
       const response = await axios.get("http://localhost:3000/api/cart", {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        withCredentials: true
       });
-      setCart(response.data.items);
+      setCart(response.data.items || []);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching cart:", error);
       setLoading(false);
+      if (error.response?.status === 401 || error.message === 'No token found') {
+        localStorage.removeItem('token'); // Clear invalid token
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login to view your cart');
+      }
     }
   };
 
@@ -64,6 +82,12 @@ const Cart = () => {
       </div>
     );
   }
+  const getImageUrl = (imageUrl) => {
+    if (!imageUrl) return '/placeholder.jpg';
+    if (imageUrl.startsWith('http')) return imageUrl;
+    if (imageUrl.startsWith('/')) return `http://localhost:3000${imageUrl}`;
+    return `http://localhost:3000/uploads/${imageUrl}`;
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -94,9 +118,14 @@ const Cart = () => {
               >
                 <div className="flex-shrink-0 w-24 h-24 bg-gray-100 rounded-md overflow-hidden">
                   <img
-                    src={item.productId.image}
+                    src={getImageUrl(item.productId.imageUrl)}
                     alt={item.productId.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.log('Image failed to load:', item.productId.imageUrl);
+                      e.target.onerror = null;
+                      e.target.src = "/placeholder.jpg";
+                    }}
                   />
                 </div>
 

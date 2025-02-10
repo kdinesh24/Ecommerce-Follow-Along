@@ -15,6 +15,8 @@ const bufferToStream = (buffer) => {
 exports.createProduct = async (req, res) => {
     try {
         const { name, description, price, category, subcategory } = req.body;
+        console.log({name, description, price, category, subcategory})
+        console.log(req.body)
         
         if (!req.file) {
             return res.status(400).json({ message: "Image is required" });
@@ -54,7 +56,7 @@ exports.createProduct = async (req, res) => {
 
         bufferToStream(req.file.buffer).pipe(stream);
     } catch (error) {
-        console.error('Server Error:', error);
+        console.error('Server Error:', error.message);
         res.status(500).json({ message: error.message });
     }
 };
