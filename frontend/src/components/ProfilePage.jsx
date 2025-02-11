@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { Settings, Package, CreditCard, User, LogOut, ChevronRight, PlusCircle } from "lucide-react"
+import { Settings, Package, User, LogOut, ChevronRight, PlusCircle, MapPin } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+import AddressForm from "./AddressForm"
 
-axios.defaults.withCredentials = true;
+axios.defaults.withCredentials = true
 
 const fadeIn = {
   hidden: { opacity: 0 },
@@ -20,15 +21,16 @@ const slideIn = {
 
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const [activeNavItem, setActiveNavItem] = useState('')
+  const [activeNavItem, setActiveNavItem] = useState("")
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     isSeller: false,
     currentRole: "customer",
     profilePhoto: null,
-    imageUrl: null
+    imageUrl: null,
   })
+  const [activeSection, setActiveSection] = useState("personal")
 
   const fileInputRef = useRef(null)
 
@@ -42,47 +44,43 @@ export default function ProfilePage() {
 
   const checkAuthAndFetchProfile = async () => {
     try {
-        setIsLoading(true);
-        
-        // Get token from localStorage
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-            throw new Error('No token found');
-        }
+      setIsLoading(true)
 
-       
+      const token = localStorage.getItem("token")
 
-        const response = await axios.get('http://localhost:3000/users/check-auth', {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
-        });
+      if (!token) {
+        throw new Error("No token found")
+      }
 
-        if (response.data && response.data.user) {
-            setFormData({
-                name: response.data.user.name || "",
-                email: response.data.user.email || "",
-                isSeller: response.data.user.isSeller || false,
-                currentRole: response.data.user.isSeller ? "seller" : "customer",
-                imageUrl: response.data.user.imageUrl || null
-            });
-        } else {
-            // Handle case where user data is not returned
-            throw new Error('User data not found');
-        }
+      const response = await axios.get("http://localhost:3000/users/check-auth", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.data && response.data.user) {
+        setFormData({
+          name: response.data.user.name || "",
+          email: response.data.user.email || "",
+          isSeller: response.data.user.isSeller || false,
+          currentRole: response.data.user.isSeller ? "seller" : "customer",
+          imageUrl: response.data.user.imageUrl || null,
+        })
+      } else {
+        throw new Error("User data not found")
+      }
     } catch (err) {
-        console.error("Auth check error:", err.response ? err.response.data : err.message);
-        // Log the entire error response for debugging
-        if (err.response) {
-            console.error("Error response data:", err.response.data);
-            console.error("Error response status:", err.response.status);
-        }
-        navigate("/ecommerce-follow-along/login");
+      console.error("Auth check error:", err.response ? err.response.data : err.message)
+      if (err.response) {
+        console.error("Error response data:", err.response.data)
+        console.error("Error response status:", err.response.status)
+      }
+      navigate("/ecommerce-follow-along/login")
     } finally {
-        setIsLoading(false);
+      setIsLoading(false)
     }
-};
+  }
+
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -111,64 +109,57 @@ export default function ProfilePage() {
   const handleFileSelect = (e) => {
     const file = e.target.files[0]
     if (file) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         profilePhoto: file,
-        imageUrl: URL.createObjectURL(file)
+        imageUrl: URL.createObjectURL(file),
       }))
     }
   }
 
   const handleSaveChanges = async () => {
     try {
-      setSaveStatus("Saving...");
-      
-      const token = localStorage.getItem('token');
+      setSaveStatus("Saving...")
+
+      const token = localStorage.getItem("token")
       if (!token) {
-        throw new Error('No authentication token');
+        throw new Error("No authentication token")
       }
-  
-      // Create FormData object to handle file upload
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('email', formData.email);
+
+      const formDataToSend = new FormData()
+      formDataToSend.append("name", formData.name)
+      formDataToSend.append("email", formData.email)
       if (formData.profilePhoto) {
-        formDataToSend.append('profilePhoto', formData.profilePhoto);
+        formDataToSend.append("profilePhoto", formData.profilePhoto)
       }
-  
-      const response = await axios.put(
-        "http://localhost:3000/users/update-profile",
-        formDataToSend,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-          withCredentials: true
-        }
-      );
-  
+
+      const response = await axios.put("http://localhost:3000/users/update-profile", formDataToSend, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      })
+
       if (response.data && response.data.user) {
         const updatedData = {
           ...response.data.user,
           currentRole: formData.currentRole,
-        };
-        localStorage.setItem("userData", JSON.stringify(updatedData));
-        
+        }
+        localStorage.setItem("userData", JSON.stringify(updatedData))
 
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          imageUrl: response.data.user.imageUrl
-        }));
-        setSaveStatus("Changes saved successfully!");
+          imageUrl: response.data.user.imageUrl,
+        }))
+        setSaveStatus("Changes saved successfully!")
       }
     } catch (err) {
-      console.error("Save error:", err);
-      setSaveStatus("Failed to save changes");
+      console.error("Save error:", err)
+      setSaveStatus("Failed to save changes")
     }
-    setTimeout(() => setSaveStatus(""), 2000);
-  };
-
+    setTimeout(() => setSaveStatus(""), 2000)
+  }
 
   const handleSwitchRole = () => {
     const newRole = formData.currentRole === "seller" ? "customer" : "seller"
@@ -205,20 +196,21 @@ export default function ProfilePage() {
       </motion.div>
     )
   }
+
   const navItems = ["Home", "Lifestyle", "Shoes", "Perfume"]
 
   return (
     <motion.div initial="hidden" animate="visible" variants={fadeIn} className="min-h-screen bg-gray-50">
-      {/* Improved Navigation Bar */}
+      {/* Navigation Bar */}
       <div className="fixed top-0 left-0 right-0 flex justify-center z-50 p-6">
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ 
+          transition={{
             type: "spring",
             stiffness: 100,
             damping: 20,
-            duration: 0.6 
+            duration: 0.6,
           }}
           className="bg-white/90 backdrop-blur-md rounded-full shadow-lg border border-gray-100 px-8 py-4"
         >
@@ -258,68 +250,68 @@ export default function ProfilePage() {
         </motion.div>
       </div>
 
-
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-32">
         <div className="flex gap-8">
           {/* Left Sidebar */}
           <motion.div className="w-72" variants={slideIn}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-            <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
-  <div className="relative w-20 h-20 mx-auto mb-4">
-    <motion.div
-      className="w-full h-full rounded-full overflow-hidden"
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-    >
-      {formData.imageUrl ? (
-        <img
-          src={formData.imageUrl}
-          alt="Profile"
-          className="w-full h-full object-cover"
-        />
-      ) : (
-        <div className="w-full h-full bg-black flex items-center justify-center">
-          <span className="text-2xl font-bold text-white">
-            {formData.name ? formData.name.charAt(0).toUpperCase() : "U"}
-          </span>
-        </div>
-      )}
-    </motion.div>
-    <motion.button
-      onClick={() => fileInputRef.current?.click()}
-      className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow-lg border border-gray-200"
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
-    >
-      <PlusCircle className="w-5 h-5 text-gray-600" />
-    </motion.button>
-    <input
-      type="file"
-      ref={fileInputRef}
-      onChange={handleFileSelect}
-      accept="image/*"
-      className="hidden"
-    />
-  </div>
-  <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
-  <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
-  <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
-    {getUserTypeDisplay()}
-  </p>
-</div>
+              <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+                <div className="relative w-20 h-20 mx-auto mb-4">
+                  <motion.div
+                    className="w-full h-full rounded-full overflow-hidden"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    {formData.imageUrl ? (
+                      <img
+                        src={formData.imageUrl || "/placeholder.svg"}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-black flex items-center justify-center">
+                        <span className="text-2xl font-bold text-white">
+                          {formData.name ? formData.name.charAt(0).toUpperCase() : "U"}
+                        </span>
+                      </div>
+                    )}
+                  </motion.div>
+                  <motion.button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow-lg border border-gray-200"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <PlusCircle className="w-5 h-5 text-gray-600" />
+                  </motion.button>
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                </div>
+                <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
+                <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
+                <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
+                  {getUserTypeDisplay()}
+                </p>
+              </div>
 
               <nav className="space-y-2 p-4">
                 {[
-                  { icon: User, text: "Personal Info" },
-                  { icon: Package, text: "Orders" },
-                  { icon: CreditCard, text: "Addresses" },
-                  { icon: Settings, text: "Settings" },
-                ].map((item, index) => (
+                  { icon: User, text: "Personal Info", id: "personal" },
+                  { icon: Package, text: "Orders", id: "orders" },
+                  { icon: MapPin, text: "Addresses", id: "addresses" },
+                  { icon: Settings, text: "Settings", id: "settings" },
+                ].map((item) => (
                   <motion.button
                     key={item.text}
+                    onClick={() => setActiveSection(item.id)}
                     className={`flex items-center w-full px-6 py-4 text-sm font-medium ${
-                      index === 0
+                      activeSection === item.id
                         ? "text-black bg-gray-50 rounded-xl border-l-4 border-black"
                         : "text-gray-600 hover:bg-gray-50 rounded-xl hover:text-black"
                     } transition-colors duration-200`}
@@ -350,102 +342,112 @@ export default function ProfilePage() {
           {/* Main Form */}
           <motion.div className="flex-1" variants={slideIn}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-              <div className="pb-6 border-b border-gray-200">
-                <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
-                <p className="mt-2 text-gray-500">Update your personal details and account settings</p>
-              </div>
+              {activeSection === "personal" ? (
+                <>
+                  <div className="pb-6 border-b border-gray-200">
+                    <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
+                    <p className="mt-2 text-gray-500">Update your personal details and account settings</p>
+                  </div>
 
-              <div className="mt-8">
-                <div className="space-y-8">
-                  {["Full Name", "Email Address"].map((label, index) => (
+                  <div className="mt-8">
+                    <div className="space-y-8">
+                      {["Full Name", "Email Address"].map((label, index) => (
+                        <motion.div
+                          key={label}
+                          initial={{ opacity: 0, y: 20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                        >
+                          <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
+                          <input
+                            type={index === 0 ? "text" : "email"}
+                            name={index === 0 ? "name" : "email"}
+                            value={formData[index === 0 ? "name" : "email"]}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-colors duration-200"
+                            placeholder={`Enter your ${label.toLowerCase()}`}
+                          />
+                        </motion.div>
+                      ))}
+
+                      <motion.div
+                        className="flex items-center p-4 bg-gray-50 rounded-xl"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.2 }}
+                      >
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-gray-900">Account Type</h3>
+                          <p className="text-sm text-gray-500 mt-1">
+                            You are currently logged in as a {getUserTypeDisplay()}
+                          </p>
+                          {formData.isSeller && (
+                            <p className="text-sm text-gray-500 mt-1">
+                              {formData.currentRole === "customer"
+                                ? "Switch to seller mode to access your seller dashboard"
+                                : "Switch to customer mode to shop"}
+                            </p>
+                          )}
+                        </div>
+                        {formData.isSeller && (
+                          <div className="flex gap-2">
+                            <motion.button
+                              onClick={handleSwitchRole}
+                              className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                            >
+                              Switch to {formData.currentRole === "seller" ? "Customer" : "Seller"}
+                            </motion.button>
+                            {formData.currentRole === "seller" && (
+                              <motion.button
+                                onClick={() => navigate("/ecommerce-follow-along/seller")}
+                                className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-900 transition-colors duration-200"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                              >
+                                Seller Dashboard
+                              </motion.button>
+                            )}
+                          </div>
+                        )}
+                      </motion.div>
+                    </div>
+
                     <motion.div
-                      key={label}
+                      className="mt-8 flex items-center"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: 0.3 }}
                     >
-                      <label className="block text-sm font-medium text-gray-700 mb-2">{label}</label>
-                      <input
-                        type={index === 0 ? "text" : "email"}
-                        name={index === 0 ? "name" : "email"}
-                        value={formData[index === 0 ? "name" : "email"]}
-                        onChange={handleInputChange}
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-black focus:border-black transition-colors duration-200"
-                        placeholder={`Enter your ${label.toLowerCase()}`}
-                      />
-                    </motion.div>
-                  ))}
-
-                  <motion.div
-                    className="flex items-center p-4 bg-gray-50 rounded-xl"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <div className="flex-1">
-                      <h3 className="text-sm font-medium text-gray-900">Account Type</h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        You are currently logged in as a {getUserTypeDisplay()}
-                      </p>
-                      {formData.isSeller && (
-                        <p className="text-sm text-gray-500 mt-1">
-                          {formData.currentRole === "customer"
-                            ? "Switch to seller mode to access your seller dashboard"
-                            : "Switch to customer mode to shop"}
-                        </p>
-                      )}
-                    </div>
-                    {formData.isSeller && (
-                      <div className="flex gap-2">
-                        <motion.button
-                          onClick={handleSwitchRole}
-                          className="px-4 py-2 text-sm font-medium text-black bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors duration-200"
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
+                      <motion.button
+                        onClick={handleSaveChanges}
+                        className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Save Changes
+                      </motion.button>
+                      {saveStatus && (
+                        <motion.span
+                          className={`ml-4 text-sm ${saveStatus.includes("success") ? "text-green-600" : "text-red-600"}`}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: 20 }}
                         >
-                          Switch to {formData.currentRole === "seller" ? "Customer" : "Seller"}
-                        </motion.button>
-                        {formData.currentRole === "seller" && (
-                          <motion.button
-                            onClick={() => navigate("/ecommerce-follow-along/seller")}
-                            className="px-4 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-900 transition-colors duration-200"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                          >
-                            Seller Dashboard
-                          </motion.button>
-                        )}
-                      </div>
-                    )}
-                  </motion.div>
+                          {saveStatus}
+                        </motion.span>
+                      )}
+                    </motion.div>
+                  </div>
+                </>
+              ) : activeSection === "addresses" ? (
+                <AddressForm />
+              ) : (
+                <div className="flex items-center justify-center h-64">
+                  <p className="text-gray-500">This section is under development</p>
                 </div>
-
-                <motion.div
-                  className="mt-8 flex items-center"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <motion.button
-                    onClick={handleSaveChanges}
-                    className="inline-flex items-center px-8 py-3 border border-transparent text-base font-medium rounded-xl shadow-sm text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    Save Changes
-                  </motion.button>
-                  {saveStatus && (
-                    <motion.span
-                      className={`ml-4 text-sm ${saveStatus.includes("success") ? "text-green-600" : "text-red-600"}`}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
-                    >
-                      {saveStatus}
-                    </motion.span>
-                  )}
-                </motion.div>
-              </div>
+              )}
             </div>
           </motion.div>
         </div>

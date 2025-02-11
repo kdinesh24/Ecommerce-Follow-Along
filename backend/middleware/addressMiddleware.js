@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const authMiddleware = (req, res, next) => {
+const authenticateToken = (req, res, next) => {
     try {
         let token;
 
@@ -19,10 +19,12 @@ const authMiddleware = (req, res, next) => {
             return res.status(401).json({ message: 'No authentication token, access denied' });
         }
 
-        
-
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
+        
+        // Set both formats for backwards compatibility
         req.userId = decoded.userId;
+        req.user = { id: decoded.userId };
+        
         next();
     } catch (error) {
         console.error('Auth middleware error:', error);
@@ -30,4 +32,4 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-module.exports = authMiddleware
+module.exports = authenticateToken;

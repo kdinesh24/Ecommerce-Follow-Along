@@ -13,6 +13,7 @@ import Cart from "./components/Cart";
 import Wishlist from "./components/Wishlist"; // Import the Wishlist component
 import { Toaster } from 'react-hot-toast';
 
+
 function HomeLayout() {
   return (
     <div className="bg-gray-950">
@@ -38,6 +39,7 @@ function App() {
         <Route path="/ecommerce-follow-along/product/:id" element={<ProductInfo />} />
         <Route path="/ecommerce-follow-along/cart" element={<Cart />} />
         <Route path="/ecommerce-follow-along/wishlist" element={<Wishlist />} /> {/* Add the Wishlist route */}
+        
       </Routes>
       <Toaster />
     </div>

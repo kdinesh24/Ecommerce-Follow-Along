@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+const addressSchema = new mongoose.Schema({
+  street: String,
+  city: String,
+  state: String,
+  zipCode: String,
+  country: String
+});
+
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -26,6 +34,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: null // Default to null if no image is uploaded
   },
+  addresses: [addressSchema],
   createdAt: {
     type: Date,
     default: Date.now
