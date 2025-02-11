@@ -51,6 +51,8 @@ export default function ProfilePage() {
             throw new Error('No token found');
         }
 
+       
+
         const response = await axios.get('http://localhost:3000/users/check-auth', {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -65,9 +67,17 @@ export default function ProfilePage() {
                 currentRole: response.data.user.isSeller ? "seller" : "customer",
                 imageUrl: response.data.user.imageUrl || null
             });
+        } else {
+            // Handle case where user data is not returned
+            throw new Error('User data not found');
         }
     } catch (err) {
-        console.error("Auth check error:", err);
+        console.error("Auth check error:", err.response ? err.response.data : err.message);
+        // Log the entire error response for debugging
+        if (err.response) {
+            console.error("Error response data:", err.response.data);
+            console.error("Error response status:", err.response.status);
+        }
         navigate("/ecommerce-follow-along/login");
     } finally {
         setIsLoading(false);
@@ -303,7 +313,7 @@ export default function ProfilePage() {
                 {[
                   { icon: User, text: "Personal Info" },
                   { icon: Package, text: "Orders" },
-                  { icon: CreditCard, text: "Payment Methods" },
+                  { icon: CreditCard, text: "Addresses" },
                   { icon: Settings, text: "Settings" },
                 ].map((item, index) => (
                   <motion.button

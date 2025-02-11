@@ -3,30 +3,53 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
 const SignupPage = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [name, setName] = useState("")
-  const [isSeller, setIsSeller] = useState(false)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    name: "",
+    isSeller: false
+  })
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+    // Clear error when user starts typing
+    if (error) setError("")
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setLoading(true)
+    setError("")
+
     try {
-      const response = await axios.post('http://localhost:3000/users/signup', {
-        email,
-        password,
-        name,
-        isSeller
-      }, {
-        withCredentials: true
+      const response = await axios.post('http://localhost:3000/users/signup', formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
       
-      if (response.status === 201) {
+      if (response.data.success) {
         navigate("/ecommerce-follow-along/login")
       }
     } catch (error) {
       console.error('Signup error:', error)
-      alert(error.response?.data?.msg || 'Signup failed')
+      if (error.response?.status === 409) {
+        setError("This email is already registered. Please try logging in instead.")
+      } else if (error.response?.data?.message) {
+        setError(error.response.data.message)
+      } else {
+        setError("An error occurred during signup. Please try again.")
+      }
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -43,6 +66,12 @@ const SignupPage = () => {
           <img src="/logo.png" alt="Logo" className="h-8 mb-12" />
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-gray-600 mb-8">Please enter your details</p>
+
+          {error && (
+            <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+              {error}
+            </div>
+          )}
 
           <button
             onClick={handleGoogleSignup}
@@ -70,8 +99,9 @@ const SignupPage = () => {
               <input
                 type="text"
                 id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -84,8 +114,9 @@ const SignupPage = () => {
               <input
                 type="email"
                 id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -98,8 +129,9 @@ const SignupPage = () => {
               <input
                 type="password"
                 id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -109,8 +141,9 @@ const SignupPage = () => {
               <input
                 type="checkbox"
                 id="isSeller"
-                checked={isSeller}
-                onChange={(e) => setIsSeller(e.target.checked)}
+                name="isSeller"
+                checked={formData.isSeller}
+                onChange={handleChange}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
               <label htmlFor="isSeller" className="ml-2 block text-sm text-gray-700">
@@ -120,9 +153,12 @@ const SignupPage = () => {
 
             <button
               type="submit"
-              className="w-full bg-black text-white rounded-lg py-3 font-medium hover:bg-gray-800 transition-colors"
+              disabled={loading}
+              className={`w-full bg-black text-white rounded-lg py-3 font-medium transition-colors ${
+                loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-gray-800'
+              }`}
             >
-              Sign up
+              {loading ? 'Signing up...' : 'Sign up'}
             </button>
           </form>
 

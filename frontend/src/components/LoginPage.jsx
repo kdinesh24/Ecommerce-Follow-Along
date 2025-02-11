@@ -52,6 +52,10 @@ const LoginPage = () => {
       })
       
       if (response.status === 200) {
+        // Ensure the token is set correctly
+        localStorage.setItem('token', response.data.token);
+        
+
         // If user is a seller, show the modal and store response temporarily
         if (response.data.user.isSeller) {
           setTempLoginData(response.data)
@@ -83,7 +87,7 @@ const LoginPage = () => {
         currentRole: role
       }
       localStorage.setItem('userData', JSON.stringify(userData))
-      localStorage.setItem('token', tempLoginData.token)
+     
       navigate("/ecommerce-follow-along/home")
     }
   }

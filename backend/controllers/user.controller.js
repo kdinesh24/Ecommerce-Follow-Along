@@ -16,48 +16,98 @@ const bufferToStream = (buffer) => {
 const signup = async (req, res) => {
     try {
         const { name, email, password, isSeller } = req.body;
+        console.log("Received signup data:", { name, email, password, isSeller });
 
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+        // Input validation
+        if (!name || !email || !password) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'Please provide name, email, and password' 
+            });
         }
 
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please provide a valid email address'
+            });
+        }
+
+        // Check for existing user
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                message: 'Email already registered'
+            });
+        }
+
+        // Hash password
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Create new user
         const newUser = new User({
-            name,
-            email,
+            name: name.trim(),
+            email: email.toLowerCase(),
             password: hashedPassword,
-            isSeller
+            isSeller: Boolean(isSeller)
         });
+
+        // Save user
         await newUser.save();
 
+        // Generate JWT token
         const token = jwt.sign(
-            { userId: newUser._id },
+            { 
+                userId: newUser._id,
+                email: newUser.email,
+                isSeller: newUser.isSeller 
+            },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '24h' }
         );
 
-        const userResponse = { ...newUser.toObject() };
-        delete userResponse.password;
+        // Prepare user response (exclude sensitive data)
+        const userResponse = {
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+            isSeller: newUser.isSeller,
+            imageUrl: newUser.imageUrl,
+            createdAt: newUser.createdAt
+        };
 
+        // Set cookie
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+            maxAge: 24 * 60 * 60 * 1000, // 24 hours
+            path: '/'
         });
 
-        res.status(201).json({
+        // Send response
+        return res.status(201).json({
+            success: true,
             message: 'User created successfully',
             user: userResponse,
             token
         });
+
     } catch (error) {
         console.error('Signup error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
+        return res.status(500).json({
+            success: false,
+            message: 'An error occurred during signup',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 };
+
+  
+  
 
 const login = async (req, res) => {
     try {
