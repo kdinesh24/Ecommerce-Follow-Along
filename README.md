@@ -311,32 +311,71 @@ client/
 
 ## Milestone 17: Cart Functionality Implementation
 
-- **Cart Schema Design**: Modified user schema to store cart products with necessary product details and quantities  
-- **Cart Storage Endpoint**: Created POST endpoint to handle product details reception and persistent cart storage in database  
-- **Data Validation**: Implemented checks for product availability and valid quantities before cart updates  
-- **Testing**: Verified cart item persistence and user-specific cart isolation  
-- **GitHub Updates**: Committed schema modifications and endpoint implementation to repository  
+- **Cart Schema Design**: Modified user schema to store cart products with necessary product details and quantities.
+- **Cart Storage Endpoint**: Created POST endpoint to handle product details reception and persistent cart storage in database.
+- **Data Validation**: Implemented checks for product availability and valid quantities before cart updates.
+- **Testing**: Verified cart item persistence and user-specific cart isolation.
+- **GitHub Updates**: Committed schema modifications and endpoint implementation to repository. 
 
 ---
 
 ## Milestone 18: Cart Data Retrieval System
 
-- **Cart Data Endpoint**: Developed GET endpoint to fetch all cart products using authenticated user's email  
-- **Product Population**: Implemented product data population from separate collection for complete cart information  
-- **Security Checks**: Added authentication middleware to ensure user-specific cart access  
-- **Testing**: Validated endpoint response structure and data accuracy  
-- **GitHub Updates**: Pushed cart retrieval endpoint implementation  
+- **Cart Data Endpoint**: Developed GET endpoint to fetch all cart products using authenticated user's email.
+- **Product Population**: Implemented product data population from separate collection for complete cart information.
+- **Security Checks**: Added authentication middleware to ensure user-specific cart access.
+- **Testing**: Validated endpoint response structure and data accuracy.
+- **GitHub Updates**: Pushed cart retrieval endpoint implementation.
 
 ---
 
 ## Milestone 19: Cart Management Interface
 
-- **Cart Page Implementation**: Created frontend cart page with dynamic product display using fetched cart data  
-- **Quantity Controls**: Added interactive +/- buttons for real-time quantity adjustment per product  
-- **Quantity Update Endpoints**: Built PUT endpoints for increment/decrement operations with inventory checks  
-- **Live Price Calculation**: Implemented frontend total calculation based on quantity changes  
-- **Sync Optimization**: Added debouncing to quantity update API calls  
-- **Testing**: Verified quantity synchronization between frontend and database  
-- **GitHub Updates**: Committed cart page components and quantity management endpoints  
+- **Cart Page Implementation**: Created frontend cart page with dynamic product display using fetched cart data.
+- **Quantity Controls**: Added interactive +/- buttons for real-time quantity adjustment per product.
+- **Quantity Update Endpoints**: Built PUT endpoints for increment/decrement operations with inventory checks.
+- **Live Price Calculation**: Implemented frontend total calculation based on quantity changes.
+- **Sync Optimization**: Added debouncing to quantity update API calls.
+- **Testing**: Verified quantity synchronization between frontend and database.
+- **GitHub Updates**: Committed cart page components and quantity management endpoints.
+
+---
+
+## Milestone 20: User Profile and Data Management
+
+- **Backend Endpoint for User Data**: Created a backend endpoint to send all user data via email.
+- **Frontend Profile Page**: Developed a frontend profile page to display user data.
+- **Profile Information Display**:
+  - Displayed profile photo, name, and email in one section.
+  - Displayed address information in another section with an "Add address" button.
+- **Address Handling**:
+  - Displayed "No address found" if no addresses are available.
+- **Navigation**:
+  - Implemented navigation to the address form page when "Add address" is clicked.
+- **Testing**: Verified the display of user data and navigation functionality.
+- **GitHub Updates**: Committed backend endpoint and frontend profile page components.
+
+---
+
+## Milestone 21: Address Form Integration
+
+- **Address Form Frontend Page**: Created a frontend form to input address details.
+- **Address Fields**:
+  - Included fields for country, city, address1, address2, zip code, and address type.
+- **State Management**: Implemented state to store input address data.
+- **Navigation Integration**:
+  - Enabled navigation from the profile page to the address form page upon clicking "Add address".
+- **Testing**: Verified form functionality and state management.
+- **GitHub Updates**: Committed address form components and state management logic.
+
+---
+
+## Milestone 22: Address Storage Endpoint
+
+- **Backend Endpoint for Address Storage**: Developed a backend endpoint to store address data in the user profile.
+- **Database Integration**:
+  - Added address data to the address array within the user collection in the database.
+- **Testing**: Verified address storage functionality and database updates.
+- **GitHub Updates**: Committed backend endpoint for address storage.
 
 ---

@@ -198,7 +198,9 @@ const Cart = () => {
             </div>
 
             <div className="mt-6">
-              <button className="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors">
+              <button
+               onClick={() => navigate("/ecommerce-follow-along/order")}
+               className="w-full bg-black text-white py-3 px-4 rounded-md hover:bg-gray-800 transition-colors">
                 Proceed to Checkout
               </button>
             </div>
