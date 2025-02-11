@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart, ShoppingBag, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,16 +7,25 @@ import { motion } from 'framer-motion';
 
 export default function ProductCard({
   _id,
-  name,
-  description,
-  price,
-  image,
-  category,
-  subcategory,
-  inStock = true
+  name = 'Unnamed Product',
+  description = 'No description available',
+  price = 0,
+  image = '/placeholder-image.jpg',
+  category = 'Uncategorized',
+  subcategory = 'No Subcategory',
+  inStock = true,
+  isFavorite: initialIsFavorite = false,
+  onToggleFavorite
 }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const navigate = useNavigate();
+
+  // Ensure price is always a number
+  const safePrice = Number(price) || 0;
+
+  useEffect(() => {
+    setIsFavorite(initialIsFavorite);
+  }, [initialIsFavorite]);
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
@@ -55,6 +64,45 @@ export default function ProductCard({
     }
   };
 
+  const handleToggleFavorite = async (e) => {
+    e.stopPropagation();
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login to add items to wishlist');
+        return;
+      }
+
+      await axios.post(
+        "http://localhost:3000/api/wishlist/toggle",
+        { productId: _id },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+
+      setIsFavorite(!isFavorite);
+      if (onToggleFavorite) {
+        onToggleFavorite(_id);
+      }
+      toast.success(isFavorite ? 'Removed from wishlist' : 'Added to wishlist');
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login again to update wishlist');
+      } else {
+        toast.error('Failed to update wishlist');
+      }
+    }
+  };
+
   const handleCardClick = (e) => {
     if (!e.target.closest('button')) {
       navigate(`/ecommerce-follow-along/product/${_id}`);
@@ -73,10 +121,7 @@ export default function ProductCard({
       <div className="relative aspect-square w-full overflow-hidden bg-gray-50 rounded-t-xl">
         <motion.button
           whileTap={{ scale: 0.9 }}
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsFavorite(!isFavorite);
-          }}
+          onClick={handleToggleFavorite}
           className="absolute right-3 top-3 z-10 rounded-full bg-white p-2 transition-colors hover:bg-gray-100 shadow-md"
         >
           <motion.div
@@ -123,7 +168,7 @@ export default function ProductCard({
         
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-xl font-bold text-gray-900">₹{price.toFixed(2)}</p>
+            <p className="text-xl font-bold text-gray-900">₹{safePrice.toFixed(2)}</p>
             <motion.button 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -22,6 +22,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
+  imageUrl: {
+    type: String,
+    default: null // Default to null if no image is uploaded
+  },
   createdAt: {
     type: Date,
     default: Date.now

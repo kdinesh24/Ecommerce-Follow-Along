@@ -1,10 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { Settings, Package, CreditCard, User, LogOut, ChevronRight } from "lucide-react"
+import { Settings, Package, CreditCard, User, LogOut, ChevronRight, PlusCircle } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+
+axios.defaults.withCredentials = true;
 
 const fadeIn = {
   hidden: { opacity: 0 },
@@ -24,7 +26,12 @@ export default function ProfilePage() {
     email: "",
     isSeller: false,
     currentRole: "customer",
+    profilePhoto: null,
+    imageUrl: null
   })
+
+  const fileInputRef = useRef(null)
+
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [saveStatus, setSaveStatus] = useState("")
@@ -35,61 +42,37 @@ export default function ProfilePage() {
 
   const checkAuthAndFetchProfile = async () => {
     try {
-      setIsLoading(true)
-
-      const storedUserData = localStorage.getItem("userData")
-      if (!storedUserData) {
-        throw new Error("No stored user data")
-      }
-
-      const userDataFromStorage = JSON.parse(storedUserData)
-
-      const response = await axios.post(
-        "http://localhost:3000/users/login",
-        {
-          email: userDataFromStorage.email,
-          password: userDataFromStorage.password || "",
-        },
-        {
-          withCredentials: true,
-        },
-      )
-
-      if (response.data && response.data.user) {
-        setFormData({
-          name: response.data.user.name || userDataFromStorage.name || "",
-          email: response.data.user.email || userDataFromStorage.email || "",
-          isSeller: response.data.user.isSeller || userDataFromStorage.isSeller || false,
-          currentRole: userDataFromStorage.currentRole || "customer",
-        })
-
-        const updatedData = {
-          ...response.data.user,
-          currentRole: userDataFromStorage.currentRole,
+        setIsLoading(true);
+        
+        // Get token from localStorage
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            throw new Error('No token found');
         }
-        localStorage.setItem("userData", JSON.stringify(updatedData))
-      } else {
-        throw new Error("Invalid response from server")
-      }
-    } catch (err) {
-      console.error("Auth check error:", err)
-      setError(err.message)
-      if (!localStorage.getItem("userData")) {
-        navigate("/ecommerce-follow-along/login")
-      } else {
-        const fallbackData = JSON.parse(localStorage.getItem("userData"))
-        setFormData({
-          name: fallbackData.name || "",
-          email: fallbackData.email || "",
-          isSeller: fallbackData.isSeller || false,
-          currentRole: fallbackData.currentRole || "customer",
-        })
-      }
-    } finally {
-      setIsLoading(false)
-    }
-  }
 
+        const response = await axios.get('http://localhost:3000/users/check-auth', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (response.data && response.data.user) {
+            setFormData({
+                name: response.data.user.name || "",
+                email: response.data.user.email || "",
+                isSeller: response.data.user.isSeller || false,
+                currentRole: response.data.user.isSeller ? "seller" : "customer",
+                imageUrl: response.data.user.imageUrl || null
+            });
+        }
+    } catch (err) {
+        console.error("Auth check error:", err);
+        navigate("/ecommerce-follow-along/login");
+    } finally {
+        setIsLoading(false);
+    }
+};
   const handleLogout = async () => {
     try {
       await axios.post(
@@ -115,49 +98,67 @@ export default function ProfilePage() {
     }))
   }
 
-  const handleSaveChanges = async () => {
-    try {
-      setSaveStatus("Saving...")
-
-      const currentStoredData = JSON.parse(localStorage.getItem("userData") || "{}")
-      const updatedData = {
-        ...currentStoredData,
-        name: formData.name,
-        email: formData.email,
-      }
-      localStorage.setItem("userData", JSON.stringify(updatedData))
-
-      try {
-        const response = await axios.put(
-          "http://localhost:3000/users/update-profile",
-          {
-            name: formData.name,
-            email: formData.email,
-          },
-          {
-            withCredentials: true,
-          },
-        )
-
-        if (response.data && response.data.user) {
-          const serverUpdatedData = {
-            ...response.data.user,
-            currentRole: updatedData.currentRole,
-          }
-          localStorage.setItem("userData", JSON.stringify(serverUpdatedData))
-        }
-      } catch (serverError) {
-        console.warn("Server update failed, using localStorage only:", serverError)
-      }
-
-      setSaveStatus("Changes saved successfully!")
-      setTimeout(() => setSaveStatus(""), 3000)
-    } catch (err) {
-      console.error("Save error:", err)
-      setSaveStatus("Failed to save changes")
-      setTimeout(() => setSaveStatus(""), 3000)
+  const handleFileSelect = (e) => {
+    const file = e.target.files[0]
+    if (file) {
+      setFormData(prev => ({
+        ...prev,
+        profilePhoto: file,
+        imageUrl: URL.createObjectURL(file)
+      }))
     }
   }
+
+  const handleSaveChanges = async () => {
+    try {
+      setSaveStatus("Saving...");
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token');
+      }
+  
+      // Create FormData object to handle file upload
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('email', formData.email);
+      if (formData.profilePhoto) {
+        formDataToSend.append('profilePhoto', formData.profilePhoto);
+      }
+  
+      const response = await axios.put(
+        "http://localhost:3000/users/update-profile",
+        formDataToSend,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+          withCredentials: true
+        }
+      );
+  
+      if (response.data && response.data.user) {
+        const updatedData = {
+          ...response.data.user,
+          currentRole: formData.currentRole,
+        };
+        localStorage.setItem("userData", JSON.stringify(updatedData));
+        
+
+        setFormData(prev => ({
+          ...prev,
+          imageUrl: response.data.user.imageUrl
+        }));
+        setSaveStatus("Changes saved successfully!");
+      }
+    } catch (err) {
+      console.error("Save error:", err);
+      setSaveStatus("Failed to save changes");
+    }
+    setTimeout(() => setSaveStatus(""), 2000);
+  };
+
 
   const handleSwitchRole = () => {
     const newRole = formData.currentRole === "seller" ? "customer" : "seller"
@@ -254,22 +255,49 @@ export default function ProfilePage() {
           {/* Left Sidebar */}
           <motion.div className="w-72" variants={slideIn}>
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-              <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
-                <motion.div
-                  className="w-20 h-20 bg-black rounded-full mx-auto mb-4 flex items-center justify-center"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <span className="text-2xl font-bold text-white">
-                    {formData.name ? formData.name.charAt(0).toUpperCase() : "U"}
-                  </span>
-                </motion.div>
-                <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
-                <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
-                <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
-                  {getUserTypeDisplay()}
-                </p>
-              </div>
+            <div className="p-8 bg-gradient-to-br from-gray-50 to-gray-100">
+  <div className="relative w-20 h-20 mx-auto mb-4">
+    <motion.div
+      className="w-full h-full rounded-full overflow-hidden"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      {formData.imageUrl ? (
+        <img
+          src={formData.imageUrl}
+          alt="Profile"
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full bg-black flex items-center justify-center">
+          <span className="text-2xl font-bold text-white">
+            {formData.name ? formData.name.charAt(0).toUpperCase() : "U"}
+          </span>
+        </div>
+      )}
+    </motion.div>
+    <motion.button
+      onClick={() => fileInputRef.current?.click()}
+      className="absolute bottom-0 right-0 p-1 bg-white rounded-full shadow-lg border border-gray-200"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      <PlusCircle className="w-5 h-5 text-gray-600" />
+    </motion.button>
+    <input
+      type="file"
+      ref={fileInputRef}
+      onChange={handleFileSelect}
+      accept="image/*"
+      className="hidden"
+    />
+  </div>
+  <h2 className="text-xl font-bold text-gray-900 text-center">{formData.name}</h2>
+  <p className="text-sm text-gray-500 mt-1 text-center">{formData.email}</p>
+  <p className="text-sm font-medium text-black mt-2 text-center bg-gray-100 rounded-full py-1">
+    {getUserTypeDisplay()}
+  </p>
+</div>
 
               <nav className="space-y-2 p-4">
                 {[

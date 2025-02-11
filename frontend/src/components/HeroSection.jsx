@@ -204,6 +204,7 @@ const MakersVaultHero = () => {
             </motion.button>
 
             <motion.button 
+              onClick={() => navigate('/ecommerce-follow-along/wishlist')}
               className="text-white hover:text-gray-200 transition-colors"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}

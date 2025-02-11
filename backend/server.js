@@ -4,10 +4,12 @@ const mongoose = require('mongoose');
 const connectDB = require('./config/database');
 const userRoutes = require('./routes/user.routes');
 const productRoutes = require('./routes/product.routes');
+const wishlistRoutes = require('./routes/wishlist.routes');
 const authRoutes = require('./routes/auth.routes');
 const session = require('express-session');
 const passport = require('passport');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -15,6 +17,7 @@ dotenv.config();
 const app = express();
 
 // Middleware
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors({
   origin: 'http://localhost:5173',
@@ -47,6 +50,7 @@ app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/items', productRoutes);
 app.use('/api/cart', require('./routes/cart.routes'));
+app.use('/api/wishlist', wishlistRoutes);
 
 // Debug route
 app.get('/', (req, res) => {

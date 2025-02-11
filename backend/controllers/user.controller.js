@@ -1,43 +1,55 @@
 const User = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const cloudinary = require("../config/cloudinary");
+const { Readable } = require('stream');
 
-const signup = async function(req, res) {
+const bufferToStream = (buffer) => {
+    return new Readable({
+        read() {
+            this.push(buffer);
+            this.push(null);
+        },
+    });
+};
+
+const signup = async (req, res) => {
     try {
         const { name, email, password, isSeller } = req.body;
-        
-        // Check if user already exists
+
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
 
-        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-        
-        // Create new user
+
         const newUser = new User({
             name,
             email,
             password: hashedPassword,
             isSeller
         });
-
         await newUser.save();
-        
-        // Create JWT token
+
         const token = jwt.sign(
             { userId: newUser._id },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '24h' }
         );
 
-        // Don't send password in response
         const userResponse = { ...newUser.toObject() };
         delete userResponse.password;
-        
-        res.status(201).json({ 
-            message: 'User created successfully', 
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
+        res.status(201).json({
+            message: 'User created successfully',
             user: userResponse,
             token
         });
@@ -47,43 +59,38 @@ const signup = async function(req, res) {
     }
 };
 
-const login = async function(req, res) {
+const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        
-        // Find user by email
+
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Check password
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
 
-        // Create JWT token
         const token = jwt.sign(
             { userId: user._id },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '24h' }
         );
 
-        // Set token in cookie
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+            maxAge: 24 * 60 * 60 * 1000
         });
-        
-        // Don't send password in response
+
         const userResponse = { ...user.toObject() };
         delete userResponse.password;
-        
-        res.json({ 
-            message: 'Login successful', 
+
+        res.json({
+            message: 'Login successful',
             user: userResponse,
             token
         });
@@ -93,15 +100,113 @@ const login = async function(req, res) {
     }
 };
 
-const logout = async function(req, res) {
+const logout = (req, res) => {
+    res.clearCookie('token');
+    res.json({ message: 'Logged out successfully' });
+};
+
+const checkAuth = async (req, res) => {
     try {
-        // Clear cookie
-        res.clearCookie('token');
-        res.json({ message: 'Logged out successfully' });
+        const user = await User.findById(req.userId).select('-password');
+        if (!user) {
+            return res.status(401).json({ message: 'User not found' });
+        }
+        res.json({ user });
     } catch (error) {
-        console.error('Logout error:', error);
-        res.status(500).json({ message: 'Server Error', error: error.message });
+        console.error('Check auth error:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 };
 
-module.exports = { signup, login, logout };
+const updateProfile = async (req, res) => {
+    try {
+        const { name, email } = req.body;
+        let imageUrl = null;
+
+        if (req.file) {
+            try {
+                const uploadResult = await new Promise((resolve, reject) => {
+                    const stream = cloudinary.uploader.upload_stream(
+                        { folder: "profile_photos" },
+                        (error, result) => {
+                            if (error) reject(error);
+                            else resolve(result);
+                        }
+                    );
+                    bufferToStream(req.file.buffer).pipe(stream);
+                });
+                imageUrl = uploadResult.secure_url;
+            } catch (uploadError) {
+                console.error('Image upload error:', uploadError);
+                return res.status(400).json({ message: 'Image upload failed' });
+            }
+        }
+
+        if (email) {
+            const existingUser = await User.findOne({ 
+                email, 
+                _id: { $ne: req.userId } 
+            });
+            if (existingUser) {
+                return res.status(400).json({ message: 'Email already in use' });
+            }
+        }
+
+        const updateData = {
+            ...(name && { name }),
+            ...(email && { email }),
+            ...(imageUrl && { imageUrl })
+        };
+
+        const user = await User.findByIdAndUpdate(
+            req.userId,
+            updateData,
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ message: 'Profile updated', user });
+    } catch (error) {
+        console.error('Update profile error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+const getUserRole = async (req, res) => {
+    try {
+        const user = await User.findById(req.userId).select('isSeller');
+        res.json({ isSeller: user.isSeller });
+    } catch (error) {
+        console.error('Get role error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+const updateUserRole = async (req, res) => {
+    try {
+        const { isSeller } = req.body;
+        const user = await User.findByIdAndUpdate(
+            req.userId,
+            { isSeller },
+            { new: true }
+        ).select('-password');
+        
+        res.json({ message: 'Role updated', user });
+    } catch (error) {
+        console.error('Update role error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = {
+    signup,
+    login,
+    logout,
+    checkAuth,
+    updateProfile,
+    getUserRole,
+    updateUserRole
+};
