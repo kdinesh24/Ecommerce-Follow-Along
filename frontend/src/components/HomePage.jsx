@@ -19,7 +19,7 @@ export default function Homepage() {
     useEffect(() => {
         const fetchProducts = async () => {    
             try {
-                const response = await axios.get("http://localhost:3000/items/products");
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`);
                 console.log('Products from API:', response.data);
                 setProducts(response.data);
                 setFilteredProducts(response.data);
@@ -142,7 +142,7 @@ export default function Homepage() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
         >
-            <div className="container mx-auto max-w-7xl">
+            <div className="container mx-auto max-w-7xl pb-20">
                 <motion.div 
                     className="flex justify-between items-center mb-8"
                     initial={{ y: -20, opacity: 0 }}

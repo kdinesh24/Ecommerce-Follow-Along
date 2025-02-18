@@ -44,7 +44,7 @@ const LoginPage = () => {
     setIsLoading(true)
     
     try {
-      const response = await axios.post('http://localhost:3000/users/login', {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/login`, {
         email,
         password
       }, {
@@ -94,7 +94,7 @@ const LoginPage = () => {
 
   const handleGoogleLogin = (e) => {
     e.preventDefault()
-    window.location.href = 'http://localhost:3000/auth/google'
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`
   }
 
   return (

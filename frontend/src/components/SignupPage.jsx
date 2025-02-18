@@ -29,7 +29,7 @@ const SignupPage = () => {
     setError("")
 
     try {
-      const response = await axios.post('http://localhost:3000/users/signup', formData, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/signup`, formData, {
         withCredentials: true,
         headers: {
           'Content-Type': 'application/json'
@@ -55,7 +55,7 @@ const SignupPage = () => {
 
   const handleGoogleSignup = (e) => {
     e.preventDefault()
-    window.location.href = 'http://localhost:3000/auth/google'
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`
   }
 
   return (

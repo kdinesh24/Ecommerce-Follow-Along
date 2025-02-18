@@ -6,6 +6,7 @@ import { Settings, Package, User, LogOut, ChevronRight, PlusCircle, MapPin } fro
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import AddressForm from "./AddressForm"
+import OrderHistory from "./OrderHistory";
 
 axios.defaults.withCredentials = true
 
@@ -443,6 +444,8 @@ export default function ProfilePage() {
                 </>
               ) : activeSection === "addresses" ? (
                 <AddressForm />
+              ) : activeSection === "orders" ? (
+                <OrderHistory />
               ) : (
                 <div className="flex items-center justify-center h-64">
                   <p className="text-gray-500">This section is under development</p>

@@ -40,7 +40,7 @@ export default function ProductCard({
       }
 
       await axios.post(
-        "http://localhost:3000/api/cart/add",
+        `${import.meta.env.VITE_API_URL}/api/cart/add`,
         { productId: _id, quantity: 1 },
         { 
           headers: { 
@@ -142,6 +142,10 @@ export default function ProductCard({
           src={image}
           alt={name}
           className="h-full w-full object-cover object-center p-4"
+          onError={(e) => {
+            e.target.onerror = null;
+            e.target.src = '/images/default-product.jpg'; // Fallback image in case of error
+          }}
         />
       </div>
       <div className="flex-1 flex flex-col justify-between p-4 space-y-3">

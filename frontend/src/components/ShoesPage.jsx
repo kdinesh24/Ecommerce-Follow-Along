@@ -29,7 +29,7 @@ export default function ShoesPage() {
     useEffect(() => {
         const fetchProducts = async () => {    
             try {
-                const response = await axios.get("http://localhost:3000/items/products");
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`);
                 const shoeProducts = response.data.filter(product => product.category === "shoe");
                 setProducts(shoeProducts);
                 setFilteredProducts(shoeProducts);

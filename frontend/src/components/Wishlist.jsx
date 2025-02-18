@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-import ProductCard from './ProductCard'; // Adjust import path as needed
+import ProductCard from './ProductCard';
 
 export default function Wishlist() {
   const [wishlistItems, setWishlistItems] = useState([]);
@@ -18,22 +18,34 @@ export default function Wishlist() {
         return;
       }
 
-      const response = await axios.get('http://localhost:3000/api/wishlist', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/wishlist`, {
         headers: { 
           'Authorization': `Bearer ${token}`,
         }
       });
 
-      console.log('Wishlist Response:', response.data); // Log the response to check the structure
+      console.log('Wishlist Response:', response.data);
 
-      // Ensure all items have required properties
-      const formattedItems = response.data.map(item => ({
-        _id: item._id,
-        name: item.name,
-        price: Number(item.price) || 0,
-        imageUrl: item.imageUrl || 'path/to/default/image.jpg', // Fallback image if not available
-        isFavorite: true
-      }));
+      // Map the API response.
+      // Here we assume the API returns an "image" property.
+      // If the "image" is a relative path, we prefix it with the backend host.
+      // Otherwise, if there's no image, we use the fallback image.
+      const formattedItems = response.data.map(item => {
+        let imageUrl = '/images/default-product.jpg';
+        if (item.image) {
+          imageUrl = item.image.startsWith('http')
+            ? item.image
+            : `http://localhost:3000/${item.image}`;
+        }
+
+        return {
+          _id: item._id,
+          name: item.name,
+          price: Number(item.price) || 0,
+          imageUrl,
+          isFavorite: true
+        };
+      });
 
       setWishlistItems(formattedItems);
       setIsLoading(false);
@@ -56,7 +68,7 @@ export default function Wishlist() {
   }, []);
 
   const handleToggleFavorite = (productId) => {
-    // Remove the item from wishlist immediately
+    // Remove the item from the wishlist immediately
     setWishlistItems(prevItems => 
       prevItems.filter(item => item._id !== productId)
     );
@@ -87,6 +99,7 @@ export default function Wishlist() {
             key={item._id}
             {...item}
             onToggleFavorite={handleToggleFavorite}
+            imageUrl={item.imageUrl}
           />
         ))}
       </div>

@@ -8,7 +8,6 @@ const LoginOptionsModal = ({ isOpen, onClose, onSelectRole }) => {
         <p className="text-gray-600 mb-6">
           Please select how you would like to login to your account
         </p>
-        
         <div className="space-y-4">
           <button
             onClick={() => onSelectRole('seller')}

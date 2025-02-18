@@ -44,7 +44,7 @@ export default function SellerPage() {
 
   const fetchProducts = async () => {
     try {
-        const response = await axios.get("http://localhost:3000/items/products");
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`);
         // Sort products to maintain consistent order
         const sortedProducts = response.data.sort((a, b) => 
             new Date(b.createdAt) - new Date(a.createdAt)
@@ -74,13 +74,13 @@ const onSubmit = async (data) => {
       if (editingProduct) {
           console.log('Updating product:', editingProduct._id);
           response = await axios.put(
-              `http://localhost:3000/items/products/${editingProduct._id}`,
+              `${import.meta.env.VITE_API_URL}/items/products/${editingProduct._id}`,
               formData,
               { headers: { "Content-Type": "multipart/form-data" } }
           );
       } else {
           response = await axios.post(
-              "http://localhost:3000/items/products",
+              `${import.meta.env.VITE_API_URL}/items/products`,
               formData,
               { headers: { "Content-Type": "multipart/form-data" } }
           );
@@ -122,7 +122,7 @@ const onSubmit = async (data) => {
 
   const handleDelete = async (productId) => {
     try {
-      await axios.delete(`http://localhost:3000/items/products/${productId}`);
+      await axios.delete(`${import.meta.env.VITE_API_URL}/items/products/${productId}`);
       await fetchProducts();
       setIsDeleteModalOpen(false);
       setProductToDelete(null);
@@ -383,7 +383,7 @@ const onSubmit = async (data) => {
                     />
                     <div className="flex-1">
                       <h3 className="font-medium">{product.name}</h3>
-                      <p className="text-gray-600">${parseFloat(product.price).toFixed(2)}</p>
+                      <p className="text-gray-600">₹{parseFloat(product.price).toFixed(2)}</p>
                       <p className="text-gray-500 text-sm">
                         {product.category} • {product.subcategory}
                       </p>

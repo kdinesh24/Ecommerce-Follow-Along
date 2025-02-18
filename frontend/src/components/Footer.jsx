@@ -111,7 +111,7 @@ const Footer = () => {
                 >
                   <div className="w-3 h-3 border-2 border-gray-400 rounded-full" />
                 </motion.div>
-                <span>Designed in Austria, Europe</span>
+                <span>Designed in India</span>
               </div>
             </motion.div>
           </motion.div>

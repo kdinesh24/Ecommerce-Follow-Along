@@ -1,14 +1,16 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
 import { ShoppingBag, Heart, Share2, ArrowLeft } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "react-hot-toast"
 import Footer from "./Footer"
 
 export default function ProductInfo() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
@@ -19,8 +21,24 @@ export default function ProductInfo() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/items/products/${id}`)
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products/${id}`)
         setProduct(response.data)
+        
+        // Check if product is in wishlist
+        const token = localStorage.getItem("token")
+        if (token) {
+          const wishlistResponse = await axios.get(
+            `${import.meta.env.VITE_API_URL}/api/wishlist`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              withCredentials: true
+            }
+          )
+          setIsFavorite(wishlistResponse.data.some(item => item._id === id))
+        }
       } catch (error) {
         console.error("Error fetching product details:", error)
         setError("Error fetching product details")
@@ -30,6 +48,77 @@ export default function ProductInfo() {
     }
     fetchProduct()
   }, [id])
+
+  const handleAddToCart = async () => {
+    if (!product?.inStock) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login to add items to cart');
+        return;
+      }
+
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/cart/add`,
+        { productId: id, quantity: 1 },
+        { 
+          headers: { 
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+      
+      toast.success('Added to cart');
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login again to add items to cart');
+      } else {
+        toast.error('Failed to add item to cart');
+      }
+    }
+  };
+
+  const handleToggleFavorite = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login to add items to wishlist');
+        return;
+      }
+
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/wishlist/toggle`,
+        { productId: id },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
+
+      setIsFavorite(!isFavorite);
+      toast.success(isFavorite ? 'Removed from wishlist' : 'Added to wishlist');
+    } catch (error) {
+      console.error("Error toggling wishlist:", error);
+      if (error.response?.status === 401) {
+        localStorage.removeItem('token');
+        navigate('/ecommerce-follow-along/login');
+        toast.error('Please login again to update wishlist');
+      } else {
+        toast.error('Failed to update wishlist');
+      }
+    }
+  };
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href)
@@ -112,14 +201,24 @@ export default function ProductInfo() {
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
-                <motion.button
-                  onClick={() => setIsFavorite(!isFavorite)}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="absolute right-4 top-4 z-10 rounded-full bg-white p-3 shadow-lg"
-                >
-                  <Heart size={24} className={isFavorite ? "fill-red-500 stroke-red-500" : "stroke-gray-600"} />
-                </motion.button>
+                <div className="absolute right-4 top-4 z-10 flex gap-2">
+                  <motion.button
+                    onClick={handleToggleFavorite}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="rounded-full bg-white p-3 shadow-lg"
+                  >
+                    <Heart size={24} className={isFavorite ? "fill-red-500 stroke-red-500" : "stroke-gray-600"} />
+                  </motion.button>
+                  <motion.button
+                    onClick={handleShare}
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="rounded-full bg-white p-3 shadow-lg"
+                  >
+                    <Share2 size={24} className="stroke-gray-600" />
+                  </motion.button>
+                </div>
               </div>
 
               {/* Thumbnail Images */}
@@ -192,7 +291,7 @@ export default function ProductInfo() {
                 ))}
               </motion.div>
 
-              {/* Action Buttons */}
+              {/* Action Button */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -202,28 +301,16 @@ export default function ProductInfo() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 px-8 bg-black text-white rounded-full hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2 text-lg font-medium"
+                  onClick={handleAddToCart}
+                  className={`w-full py-4 px-8 rounded-full flex items-center justify-center gap-2 text-lg font-medium transition-colors ${
+                    product.inStock 
+                      ? 'bg-black text-white hover:bg-zinc-800' 
+                      : 'bg-gray-400 text-white cursor-not-allowed'
+                  }`}
+                  disabled={!product.inStock}
                 >
                   <ShoppingBag size={20} />
-                  Add to Cart
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full py-4 px-8 border-2 border-black text-black rounded-full hover:bg-black hover:text-white transition-colors text-lg font-medium"
-                >
-                  Buy Now
-                </motion.button>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleShare}
-                  className="w-full py-4 px-8 bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 text-lg font-medium"
-                >
-                  <Share2 size={20} />
-                  Share Product
+                  {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                 </motion.button>
               </motion.div>
 
@@ -253,4 +340,3 @@ export default function ProductInfo() {
     </>
   )
 }
-

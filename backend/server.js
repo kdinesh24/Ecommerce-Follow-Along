@@ -52,6 +52,7 @@ app.use('/users', userRoutes);
 app.use('/items', productRoutes);
 app.use('/api/cart', require('./routes/cart.routes'));
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/orders', require('./routes/order.routes'));
 
 // Debug route
 app.get('/', (req, res) => {
@@ -61,7 +62,6 @@ app.get('/', (req, res) => {
     user: req.user
   });
 });
-
 const PORT = 3000;
 app.listen(PORT, async () => {
   try {
