@@ -9,7 +9,8 @@ const {
     checkAuth, 
     updateProfile, 
     getUserRole, 
-    updateUserRole 
+    updateUserRole,
+    getProfile 
 } = require("../controllers/user.controller");
 
 // Multer configuration
@@ -24,6 +25,8 @@ router.post('/login', login);
 router.post('/logout', logout);
 
 // Protected routes - require authentication
+router.get('/profile', authMiddleware, getProfile);
+router.patch('/profile', authMiddleware, updateProfile);
 router.get('/check-auth', authMiddleware, checkAuth);
 router.put('/update-profile', [authMiddleware, upload.single('profilePhoto')], updateProfile);
 router.get('/role', authMiddleware, getUserRole);

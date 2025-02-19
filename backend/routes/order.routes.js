@@ -16,6 +16,7 @@ router.get('/', orderController.getUserOrders);
 router.get('/:orderId', orderController.getOrderDetails);
 
 // Update order status (could add admin middleware here)
-router.patch('/:orderId/status', orderController.updateOrderStatus);
+router.post('/:orderId/cancel', orderController.cancelOrder);
+router.patch('/:orderId/seller-status', orderController.updateOrderStatusAsSeller);
 
 module.exports = router;

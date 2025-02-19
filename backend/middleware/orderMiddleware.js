@@ -1,27 +1,24 @@
+// orderMiddleware.js
 const jwt = require('jsonwebtoken');
-const User = require('../models/user.model');
 
-const orderMiddleware = async (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
-
+    
     if (!token) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-
+    
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
-
-    if (!user) {
-      return res.status(401).json({ message: 'User not found' });
+    req.userId = decoded.userId;
+    req.user = { _id: decoded.userId };
+    if (decoded.isSeller) {
+      req.user.isSeller = true;
     }
-
-    req.user = user;
+    
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
-    res.status(401).json({ message: 'Invalid token' });
+    return res.status(401).json({ message: 'Authentication failed' });
   }
 };
-
-module.exports = orderMiddleware;

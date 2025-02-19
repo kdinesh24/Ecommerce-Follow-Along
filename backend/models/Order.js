@@ -35,8 +35,25 @@ const orderSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled', 'success'],
     default: 'pending'
+  },
+  cancelReason: {
+    type: String,
+    enum: ['changed_mind', 'wrong_item', 'delivery_time_too_long', 'found_better_price', 'other'],
+    required: function() { return this.status === 'cancelled'; }
+  },
+  cancelDescription: {
+    type: String,
+    required: function() { return this.status === 'cancelled'; }
+  },
+  seller: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  progressStatus: {
+    type: Number,  // 25 for pending, 50 for processing, 75 for shipped, 100 for success/delivered
+    default: 25
   },
   orderDate: {
     type: Date,
