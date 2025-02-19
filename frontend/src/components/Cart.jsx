@@ -21,7 +21,6 @@ const Cart = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Initialize quantities state from cart
     const initialQuantities = {};
     cart.forEach(item => {
       if (item.productId) {
@@ -68,20 +67,18 @@ const Cart = () => {
       await axios.delete(`${import.meta.env.VITE_API_URL}/api/cart/remove/${productId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      // Optimistically update the UI
       setCart(prev => prev.filter(item => item.productId._id !== productId));
       toast.success('Item removed from cart');
     } catch (error) {
       console.error("Error removing item:", error);
       toast.error('Failed to remove item. Please try again.');
-      fetchCart(); // Refresh cart if operation failed
+      fetchCart();
     }
   };
 
   const updateQuantity = async (productId, newQuantity) => {
     if (newQuantity < 1 || newQuantity > 99) return;
     
-    // Optimistically update the UI
     setQuantities(prev => ({ ...prev, [productId]: newQuantity }));
     
     try {
@@ -92,7 +89,6 @@ const Cart = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       
-      // Update cart state locally
       setCart(prev => prev.map(item => {
         if (item.productId._id === productId) {
           return { ...item, quantity: newQuantity };
@@ -102,7 +98,7 @@ const Cart = () => {
     } catch (error) {
       console.error("Error updating quantity:", error);
       toast.error('Failed to update quantity. Please try again.');
-      fetchCart(); // Refresh cart if operation failed
+      fetchCart();
     }
   };
 
@@ -118,7 +114,6 @@ const Cart = () => {
     if (currentQuantity >= 1) {
       updateQuantity(productId, currentQuantity);
     } else {
-      // Reset to 1 if invalid quantity
       setQuantities(prev => ({ ...prev, [productId]: 1 }));
       updateQuantity(productId, 1);
     }
@@ -148,7 +143,6 @@ const Cart = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -160,7 +154,7 @@ const Cart = () => {
               Back
             </button>
             <h1 className="text-xl font-semibold text-gray-900">Shopping Cart</h1>
-            <div className="w-20" /> {/* Spacer for alignment */}
+            <div className="w-20" /> 
           </div>
         </div>
       </div>

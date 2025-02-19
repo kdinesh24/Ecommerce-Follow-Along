@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
   },
   imageUrl: {
     type: String,
-    default: null // Default to null if no image is uploaded
+    default: null 
   },
   addresses: [addressSchema],
   createdAt: {

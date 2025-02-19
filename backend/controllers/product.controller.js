@@ -22,13 +22,13 @@ exports.createProduct = async (req, res) => {
             return res.status(400).json({ message: "Image is required" });
         }
 
-        console.log('File received:', req.file); // Debug log
+        console.log('File received:', req.file); 
 
-        // Upload to Cloudinary
+      
         const stream = cloudinary.uploader.upload_stream(
             {
                 folder: "ecommerce-products",
-                resource_type: "auto" // Add this line
+                resource_type: "auto" 
             },
             async (error, result) => {
                 if (error) {
@@ -36,7 +36,7 @@ exports.createProduct = async (req, res) => {
                     return res.status(500).json({ message: "Error uploading image", error: error.message });
                 }
 
-                console.log('Cloudinary result:', result); // Debug log
+                console.log('Cloudinary result:', result); 
 
                 const newProduct = new Product({
                     name,
@@ -49,7 +49,7 @@ exports.createProduct = async (req, res) => {
                 });
 
                 const savedProduct = await newProduct.save();
-                console.log('Saved product:', savedProduct); // Debug log
+                console.log('Saved product:', savedProduct); 
                 res.status(201).json(savedProduct);
             }
         );
@@ -65,22 +65,22 @@ exports.updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
         
-        // Log incoming data
+        
         console.log('Update Request Body:', req.body);
         console.log('Update Request File:', req.file);
         
-        // Check if request body is empty
+       
         if (Object.keys(req.body).length === 0) {
             return res.status(400).json({ message: "No update data provided" });
         }
 
-        // Find the existing product first
+       
         const existingProduct = await Product.findById(id);
         if (!existingProduct) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // Prepare update data only with fields that are provided
+       
         const updateData = {};
         
         if (req.body.name) updateData.name = req.body.name;
@@ -93,19 +93,19 @@ exports.updateProduct = async (req, res) => {
         if (req.body.category) updateData.category = req.body.category;
         if (req.body.subcategory) updateData.subcategory = req.body.subcategory;
         
-        // Preserve existing image data
+        
         updateData.imageUrl = existingProduct.imageUrl;
         updateData.cloudinaryId = existingProduct.cloudinaryId;
 
-        // Handle image update if a new file is uploaded
+      
         if (req.file) {
             try {
-                // Delete old image from Cloudinary if it exists
+              
                 if (existingProduct.cloudinaryId) {
                     await cloudinary.uploader.destroy(existingProduct.cloudinaryId);
                 }
 
-                // Upload new image to Cloudinary
+            
                 const uploadResult = await new Promise((resolve, reject) => {
                     const stream = cloudinary.uploader.upload_stream(
                         {
@@ -120,7 +120,7 @@ exports.updateProduct = async (req, res) => {
                     bufferToStream(req.file.buffer).pipe(stream);
                 });
 
-                // Update image data
+              
                 updateData.imageUrl = uploadResult.secure_url;
                 updateData.cloudinaryId = uploadResult.public_id;
             } catch (cloudinaryError) {
@@ -131,7 +131,7 @@ exports.updateProduct = async (req, res) => {
 
         console.log('Final Update Data:', updateData);
 
-        // Update the product with new data
+       
         const updatedProduct = await Product.findByIdAndUpdate(
             id,
             { $set: updateData },
@@ -159,7 +159,7 @@ exports.deleteProduct = async (req, res) => {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // Delete image from Cloudinary
+       
         if (product.cloudinaryId) {
             await cloudinary.uploader.destroy(product.cloudinaryId);
         }

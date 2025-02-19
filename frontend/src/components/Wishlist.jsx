@@ -26,10 +26,7 @@ export default function Wishlist() {
 
       console.log('Wishlist Response:', response.data);
 
-      // Map the API response.
-      // Here we assume the API returns an "image" property.
-      // If the "image" is a relative path, we prefix it with the backend host.
-      // Otherwise, if there's no image, we use the fallback image.
+
       const formattedItems = response.data.map(item => {
         let imageUrl = '/images/default-product.jpg';
         if (item.image) {
@@ -68,7 +65,7 @@ export default function Wishlist() {
   }, []);
 
   const handleToggleFavorite = (productId) => {
-    // Remove the item from the wishlist immediately
+   
     setWishlistItems(prevItems => 
       prevItems.filter(item => item._id !== productId)
     );

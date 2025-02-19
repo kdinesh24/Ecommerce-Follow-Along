@@ -17,7 +17,6 @@ export default function Order() {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [orderPlaced, setOrderPlaced] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
@@ -101,7 +100,7 @@ export default function Order() {
     }, 0);
   };
 
-  const handlePlaceOrder = async () => {
+  const handleProceedToPayment = () => {
     if (!selectedAddress) {
       setError('Please select a delivery address');
       return;
@@ -112,57 +111,21 @@ export default function Order() {
       return;
     }
   
-    setLoading(true);
-    setError(null);
+    // Prepare order data to pass to payment page
+    const orderData = {
+      deliveryAddress: {
+        street: selectedAddress.street,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        zipCode: selectedAddress.zipCode,
+        country: selectedAddress.country
+      },
+      items: cart,
+      total: calculateTotal()
+    };
   
-    try {
-      const token = localStorage.getItem('token');
-      
-      // Preparing the order data according to what the backend expects
-      const orderData = {
-        deliveryAddress: {
-          street: selectedAddress.street,
-          city: selectedAddress.city,
-          state: selectedAddress.state,
-          zipCode: selectedAddress.zipCode,
-          country: selectedAddress.country
-        },
-      };
-  
-      console.log('Order data being sent:', orderData);
-  
-      // Send the order request to create an order using the current cart
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/orders`,
-        orderData,
-        { headers: { Authorization: `Bearer ${token}` }}
-      );
-  
-      console.log('Order response:', response.data);
-  
-      // Order was successful
-      setOrderPlaced(true);
-      toast.success('Order placed successfully!');
-      
-      // Clear the cart in local state
-      setCart([]);
-  
-      // Redirect after a short delay
-      setTimeout(() => {
-        navigate('/ecommerce-follow-along/home');
-      }, 2000);
-  
-    } catch (error) {
-      console.error('Order placement error:', error);
-      if (error.response?.data?.message) {
-        setError(error.response.data.message);
-      } else {
-        setError('Failed to place order. Please try again.');
-      }
-      toast.error('Failed to place order');
-    } finally {
-      setLoading(false);
-    }
+    // Navigate to payment page with order data
+    navigate('/ecommerce-follow-along/payment', { state: { orderData } });
   };
 
   const getImageUrl = (imageUrl) => {
@@ -171,34 +134,6 @@ export default function Order() {
     if (imageUrl.startsWith('/')) return `${import.meta.env.VITE_API_URL}${imageUrl}`;
     return `${import.meta.env.VITE_API_URL}/uploads/${imageUrl}`;
   };
-
-  if (orderPlaced) {
-    return (
-      <motion.div
-        className="fixed inset-0 bg-white flex items-center justify-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-      >
-        <motion.div
-          className="text-center"
-          initial={{ scale: 0.5, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", duration: 0.5 }}
-        >
-          <motion.div
-            className="w-20 h-20 bg-green-500 rounded-full mx-auto mb-6 flex items-center justify-center"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2 }}
-          >
-            <Check className="w-10 h-10 text-white" />
-          </motion.div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Order Placed Successfully!</h2>
-          <p className="text-gray-600">Thank you for your purchase, {userDetails?.name}!</p>
-        </motion.div>
-      </motion.div>
-    );
-  }
 
   if (loading) {
     return (
@@ -391,7 +326,7 @@ export default function Order() {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handlePlaceOrder}
+            onClick={handleProceedToPayment}
             disabled={loading || !selectedAddress || cart.length === 0}
             className={`w-full bg-black text-white py-4 rounded-lg text-lg font-medium ${
               loading || !selectedAddress || cart.length === 0
@@ -405,7 +340,7 @@ export default function Order() {
                 Processing...
               </span>
             ) : (
-              'Place Order'
+              'Proceed to Payment'
             )}
           </motion.button>
         </motion.div>

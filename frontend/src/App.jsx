@@ -10,9 +10,10 @@ import LifestylePage from "./components/LifestylePage";
 import PerfumesPage from "./components/PerfumesPage";
 import ProductInfo from "./components/ProductInfo";
 import Cart from "./components/Cart";
-import Wishlist from "./components/Wishlist"; // Import the Wishlist component
+import Wishlist from "./components/Wishlist";
 import { Toaster } from 'react-hot-toast';
 import Order from "./components/Order";
+import Payment from "./components/Payment";
 
 
 function HomeLayout() {
@@ -40,6 +41,7 @@ function App() {
         <Route path="/ecommerce-follow-along/product/:id" element={<ProductInfo />} />
         <Route path="/ecommerce-follow-along/cart" element={<Cart />} />
         <Route path="/ecommerce-follow-along/order" element={<Order />} />
+        <Route path="/ecommerce-follow-along/payment" element={<Payment />} />
         <Route path="/ecommerce-follow-along/wishlist" element={<Wishlist />} /> {/* Add the Wishlist route */}
         
       </Routes>

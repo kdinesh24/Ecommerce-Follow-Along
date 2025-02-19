@@ -4,6 +4,7 @@ const connectDB = require('./config/database');
 const userRoutes = require('./routes/user.routes');
 const productRoutes = require('./routes/product.routes');
 const wishlistRoutes = require('./routes/wishlist.routes');
+const paymentRouter = require('./routes/payment.routes')
 const authRoutes = require('./routes/auth.routes');
 const session = require('express-session');
 const passport = require('passport');
@@ -53,8 +54,9 @@ app.use('/items', productRoutes);
 app.use('/api/cart', require('./routes/cart.routes'));
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/orders', require('./routes/order.routes'));
+app.use('/api/pay' ,paymentRouter)
 
-// Debug route
+
 app.get('/', (req, res) => {
   res.send({
     message: 'Server is running',

@@ -23,7 +23,7 @@ export default function LifestylePage() {
     const [activeSortOption, setActiveSortOption] = useState("featured");
     const [activeNavItem, setActiveNavItem] = useState('');
 
-    // Updated categories and subcategories for clothing
+   
     const categories = ["all", "men", "women", "unisex"];
     const subcategories = ["all", "shirts", "pants", "dresses", "jackets"];
 

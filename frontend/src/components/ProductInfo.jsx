@@ -24,7 +24,7 @@ export default function ProductInfo() {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products/${id}`)
         setProduct(response.data)
         
-        // Check if product is in wishlist
+        
         const token = localStorage.getItem("token")
         if (token) {
           const wishlistResponse = await axios.get(

@@ -54,7 +54,7 @@ const productSchema = new mongoose.Schema({
   toObject: { getters: true }
 });
 
-// Add index for better query performance
+
 productSchema.index({ category: 1, subcategory: 1 });
 productSchema.index({ name: 'text', description: 'text' });
 

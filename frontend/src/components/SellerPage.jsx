@@ -45,7 +45,7 @@ export default function SellerPage() {
   const fetchProducts = async () => {
     try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`);
-        // Sort products to maintain consistent order
+      
         const sortedProducts = response.data.sort((a, b) => 
             new Date(b.createdAt) - new Date(a.createdAt)
         );
@@ -102,7 +102,7 @@ const onSubmit = async (data) => {
     if (e.target.files[0]) {
       const file = e.target.files[0];
       setImage(file);
-      // Create local preview URL
+     
       setPreviewImage(URL.createObjectURL(file));
     }
   };
@@ -114,7 +114,7 @@ const onSubmit = async (data) => {
     setValue("price", product.price);
     setValue("category", product.category);
     setValue("subcategory", product.subcategory);
-    // Use Cloudinary URL directly
+    
     setPreviewImage(product.imageUrl);
     setImage(null)
     window.scrollTo({ top: 0, behavior: 'smooth' });

@@ -5,7 +5,7 @@ const Product = require('../models/product.model');
 const orderController = {
   createOrder: async (req, res) => {
     try {
-      // Support both authentication patterns (req.user._id and req.userId)
+      
       const userId = req.user?._id || req.userId;
       
       if (!userId) {
@@ -14,40 +14,40 @@ const orderController = {
       
       const { deliveryAddress } = req.body;
 
-      // Validate delivery address
+     
       if (!deliveryAddress || !deliveryAddress.street || !deliveryAddress.city || 
           !deliveryAddress.state || !deliveryAddress.zipCode || !deliveryAddress.country) {
         return res.status(400).json({ message: 'Invalid delivery address' });
       }
 
-      // Get cart and populate product details
+     
       const cart = await Cart.findOne({ userId }).populate('items.productId');
       
       if (!cart || !cart.items || cart.items.length === 0) {
         return res.status(400).json({ message: 'Cart is empty' });
       }
 
-      // Filter valid items
+     
       const validItems = cart.items.filter(item => item && item.productId);
       if (validItems.length === 0) {
         return res.status(400).json({ message: 'No valid products in cart' });
       }
 
-      // Map products for order - without seller dependency
+      
       const products = validItems.map(item => ({
         product: item.productId._id,
         quantity: item.quantity || 1,
         price: item.productId.price || 0
       }));
 
-      // Calculate total amount
+     
       const totalAmount = validItems.reduce((total, item) =>
         total + ((item.productId.price || 0) * (item.quantity || 1)), 0);
 
-      // Create new order without requiring seller
+     
       const order = new Order({
         user: userId,
-        // Make seller optional
+      
         products,
         deliveryAddress,
         totalAmount,
@@ -57,7 +57,7 @@ const orderController = {
 
       await order.save();
 
-      // Clear the cart
+     
       await Cart.findOneAndUpdate(
         { userId },
         { $set: { items: [] } }
@@ -76,7 +76,7 @@ const orderController = {
     }
   },
 
-  // ... keep other methods the same ...
+  
   getUserOrders: async (req, res) => {
     try {
       const userId = req.user?._id || req.userId;
@@ -184,7 +184,7 @@ const orderController = {
       const { status } = req.body;
       const userId = req.user?._id || req.userId;
 
-      // Verify user is seller
+   
       if (!req.user?.isSeller) {
         return res.status(403).json({ message: 'Only sellers can update order status' });
       }
@@ -198,7 +198,7 @@ const orderController = {
         return res.status(404).json({ message: 'Order not found' });
       }
 
-      // Update progress status based on order status
+     
       const progressMap = {
         'pending': 25,
         'processing': 50,

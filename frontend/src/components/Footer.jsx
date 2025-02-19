@@ -43,7 +43,6 @@ const Footer = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        {/* Expand/Collapse Button */}
         <motion.button
           onClick={() => setIsExpanded(!isExpanded)}
           className="absolute top-8 right-8 p-2 bg-zinc-900 rounded-full hover:bg-zinc-800 transition-colors"
@@ -65,7 +64,6 @@ const Footer = () => {
         </motion.button>
 
         <div className="max-w-7xl mx-auto">
-          {/* Basic Footer Content - Always Visible */}
           <motion.div
             className="flex flex-col md:flex-row justify-between items-start md:items-center"
             initial={{ opacity: 0 }}
@@ -73,7 +71,6 @@ const Footer = () => {
             transition={{ delay: 0.2, duration: 0.5 }}
           >
             <div className="flex items-center space-x-8">
-              {/* Logo */}
               <motion.div
                 className="bg-white rounded-lg px-3 py-1.5"
                 whileHover={{ scale: 1.05 }}
@@ -82,7 +79,6 @@ const Footer = () => {
                 <span className="text-black font-bold text-lg">MV</span>
               </motion.div>
 
-              {/* Social Icons */}
               <motion.div
                 className="flex space-x-4"
                 initial={{ opacity: 0, x: -20 }}
@@ -96,7 +92,6 @@ const Footer = () => {
               </motion.div>
             </div>
 
-            {/* Basic Info */}
             <motion.div
               className="mt-4 mr-12 md:mt-0"
               initial={{ opacity: 0, x: 20 }}
@@ -116,7 +111,6 @@ const Footer = () => {
             </motion.div>
           </motion.div>
 
-          {/* Expandable Content */}
           <AnimatePresence>
             {isExpanded && (
               <motion.div
@@ -131,7 +125,6 @@ const Footer = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.2, duration: 0.5 }}
                 >
-                  {/* Navigation Links */}
                   <div>
                     <ul className="space-y-4 text-lg">
                       {["Technology", "Company", "Shop", "Commercial", "Blog", "Contact"].map((item, index) => (
@@ -169,7 +162,6 @@ const Footer = () => {
                     </ul>
                   </div>
 
-                  {/* Additional Info */}
                   <motion.div
                     className="space-y-4"
                     initial={{ opacity: 0, y: 20 }}
@@ -193,7 +185,6 @@ const Footer = () => {
                     </motion.div>
                   </motion.div>
 
-                  {/* Legal Text */}
                   <motion.div
                     className="text-sm text-gray-500"
                     initial={{ opacity: 0 }}
@@ -208,7 +199,6 @@ const Footer = () => {
                   </motion.div>
                 </motion.div>
 
-                {/* Payment Methods */}
                 <motion.div
                   className="mt-8 flex flex-wrap gap-4 items-center justify-center"
                   initial={{ opacity: 0, y: 20 }}
@@ -239,4 +229,3 @@ const Footer = () => {
 }
 
 export default Footer
-

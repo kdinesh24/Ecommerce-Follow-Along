@@ -19,7 +19,7 @@ const SignupPage = () => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }))
-    // Clear error when user starts typing
+    
     if (error) setError("")
   }
 

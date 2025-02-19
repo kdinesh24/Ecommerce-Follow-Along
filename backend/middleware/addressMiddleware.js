@@ -4,13 +4,13 @@ const authenticateToken = (req, res, next) => {
     try {
         let token;
 
-        // Check Authorization header
+       
         const authHeader = req.headers.authorization;
         if (authHeader && authHeader.startsWith('Bearer ')) {
             token = authHeader.split(' ')[1];
         }
 
-        // If no token in header, check cookies
+       
         if (!token && req.cookies) {
             token = req.cookies.token;
         }
@@ -21,7 +21,7 @@ const authenticateToken = (req, res, next) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key');
         
-        // Set both formats for backwards compatibility
+      
         req.userId = decoded.userId;
         req.user = { id: decoded.userId };
         

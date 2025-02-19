@@ -32,7 +32,6 @@ export default function AddressForm() {
         }
       });
       
-      // Ensure we're setting an array
       const addressData = response.data?.addresses || response.data || [];
       setAddresses(Array.isArray(addressData) ? addressData : []);
     } catch (error) {

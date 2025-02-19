@@ -20,7 +20,7 @@ export default function ProductCard({
   const [isFavorite, setIsFavorite] = useState(initialIsFavorite);
   const navigate = useNavigate();
 
-  // Ensure price is always a number
+ 
   const safePrice = Number(price) || 0;
 
   useEffect(() => {
@@ -144,7 +144,7 @@ export default function ProductCard({
           className="h-full w-full object-cover object-center p-4"
           onError={(e) => {
             e.target.onerror = null;
-            e.target.src = '/images/default-product.jpg'; // Fallback image in case of error
+            e.target.src = '/images/default-product.jpg'; 
           }}
         />
       </div>

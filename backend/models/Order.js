@@ -52,7 +52,7 @@ const orderSchema = new mongoose.Schema({
     ref: 'User'
   },
   progressStatus: {
-    type: Number,  // 25 for pending, 50 for processing, 75 for shipped, 100 for success/delivered
+    type: Number,  
     default: 25
   },
   orderDate: {

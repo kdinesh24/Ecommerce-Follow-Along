@@ -22,12 +22,12 @@ const wishlistController = {
       const { productId } = req.body;
       const userId = req.user._id;
 
-      // Ensure productId is a valid ObjectId
+    
       if (!mongoose.Types.ObjectId.isValid(productId)) {
         return res.status(400).json({ message: "Invalid product ID" });
       }
 
-      // Find or create wishlist
+     
       let wishlist = await Wishlist.findOne({ user: userId });
       
       if (!wishlist) {
@@ -39,23 +39,23 @@ const wishlistController = {
         return res.json([productId]);
       }
 
-      // Check if product is already in wishlist
+      
       const productObjectId = new mongoose.Types.ObjectId(productId);
       const productIndex = wishlist.products.findIndex(
         id => id.equals(productObjectId)
       );
 
       if (productIndex === -1) {
-        // Add product to wishlist
+       
         wishlist.products.push(productObjectId);
       } else {
-        // Remove product from wishlist
+      
         wishlist.products.splice(productIndex, 1);
       }
 
       await wishlist.save();
       
-      // Return the updated list of product IDs
+    
       res.json(wishlist.products);
     } catch (error) {
       console.error('Wishlist toggle error:', error);

@@ -33,7 +33,7 @@ export default function PerfumesPage() {
         const fetchProducts = async () => {    
             try {
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`);
-                // Changed filter to get perfume items
+              
                 const perfumeProducts = response.data.filter(product => product.category === "perfume");
                 setProducts(perfumeProducts);
                 setFilteredProducts(perfumeProducts);

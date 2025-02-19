@@ -52,16 +52,16 @@ const LoginPage = () => {
       })
       
       if (response.status === 200) {
-        // Ensure the token is set correctly
+       
         localStorage.setItem('token', response.data.token);
         
 
-        // If user is a seller, show the modal and store response temporarily
+        
         if (response.data.user.isSeller) {
           setTempLoginData(response.data)
           setIsModalOpen(true)
         } else {
-          // If not a seller, login directly as customer
+         
           const userData = {
             ...response.data.user,
             currentRole: 'customer'

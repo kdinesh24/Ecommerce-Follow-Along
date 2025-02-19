@@ -63,7 +63,7 @@ export default function Homepage() {
         setSortMenuOpen(false);
     };
 
-    // Animation variants
+    
     const containerVariants = {
         hidden: { opacity: 0 },
         visible: {

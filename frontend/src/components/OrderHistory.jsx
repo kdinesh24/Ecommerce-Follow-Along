@@ -135,7 +135,7 @@ export default function OrderHistory() {
       setSelectedOrder(null);
       setCancelReason('');
       setCancelDescription('');
-      await fetchOrders(); // Refresh orders after cancellation
+      await fetchOrders(); 
     } catch (error) {
       console.error('Error cancelling order:', error);
       setError(error.response?.data?.message || 'Error cancelling order');

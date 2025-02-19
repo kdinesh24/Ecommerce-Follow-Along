@@ -10,7 +10,7 @@ exports.addToCart = async (req, res) => {
         console.log('Product ID:', productId);
         console.log('Quantity:', quantity);
 
-        // Find user's cart or create new one
+       
         let cart = await Cart.findOne({ userId });
         console.log('Existing cart found:', cart);
         
@@ -22,23 +22,23 @@ exports.addToCart = async (req, res) => {
             console.log('Created new cart:', cart);
         }
 
-        // Check if product exists
+       
         const product = await Product.findById(productId);
         if (!product) {
             return res.status(404).json({ message: "Product not found" });
         }
 
-        // Check if item already exists in cart
+       
         const cartItemIndex = cart.items.findIndex(
             item => item.productId.toString() === productId
         );
 
         if (cartItemIndex > -1) {
-            // Update quantity if item exists
+            
             cart.items[cartItemIndex].quantity = quantity;
             console.log('Updated existing item quantity');
         } else {
-            // Add new item if it doesn't exist
+          
             cart.items.push({ productId, quantity });
             console.log('Added new item to cart');
         }
@@ -100,7 +100,7 @@ exports.removeFromCart = async (req, res) => {
             return res.status(404).json({ message: "Cart not found" });
         }
 
-        // Remove item from cart
+       
         cart.items = cart.items.filter(
             item => item.productId.toString() !== productId
         );
