@@ -1,7 +1,5 @@
 const Razorpay = require('razorpay');
 const crypto = require('crypto');
-const Order = require('../models/Order');
-const Cart = require('../models/cart.model');
 require('dotenv').config();
 
 const razorpay = new Razorpay({
@@ -15,7 +13,7 @@ const makePayment = async (req, res) => {
         const { total } = req.body;
 
         const options = {
-            amount: total * 100, // Convert to paisa
+            amount: total * 100, 
             currency: "INR",
             receipt: `receipt_${Date.now()}`
         };

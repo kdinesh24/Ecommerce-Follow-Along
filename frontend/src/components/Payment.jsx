@@ -70,6 +70,7 @@ useEffect(() => {
   const handlePayment = async () => {
     try {
       setLoading(true);
+      
       const { data } = await axios.post(
         "http://localhost:3000/api/pay/checkout",
         { total: orderData.total }
@@ -82,10 +83,35 @@ useEffect(() => {
         name: "Makers Vault",
         description: "Test Payment",
         order_id: data.order.id,
+       
         handler: function (response) {
-          console.log(response);
-          alert("Payment Successful");
-          navigate("/ecommerce-follow-along/home");
+          console.log("Razorpay response:", response);
+  
+        
+          axios
+            .post(
+              `${import.meta.env.VITE_API_URL}/api/orders`,
+              {
+                deliveryAddress: orderData.deliveryAddress,
+                paymentMethod: 'ONLINE',
+            
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              },
+              { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+            )
+            .then((res) => {
+              console.log('Order created:', res.data);
+              toast.success('Order placed successfully!');
+             
+              localStorage.removeItem('cart');
+              navigate("/ecommerce-follow-along/home");
+            })
+            .catch((err) => {
+              console.error('Error creating order:', err);
+              toast.error('Order placement failed. Please contact support.');
+            });
         },
         prefill: {
           name: userDetails?.name || "Customer",
@@ -104,6 +130,7 @@ useEffect(() => {
       setLoading(false);
     }
   };
+  
 
   const handleCashOnDelivery = async () => {
     setLoading(true);
@@ -119,7 +146,7 @@ useEffect(() => {
   
       console.log('Order data being sent:', orderPayload);
   
-      // Send the order request to create an order using the current cart
+     
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/orders`,
         orderPayload,
@@ -128,11 +155,11 @@ useEffect(() => {
   
       console.log('Order response:', response.data);
   
-      // Order was successful
+     
       setOrderPlaced(true);
       toast.success('Order placed successfully!');
       
-      // Redirect after a short delay
+   
       setTimeout(() => {
         navigate('/ecommerce-follow-along/home');
       }, 2000);

@@ -77,7 +77,7 @@ const MakersVaultHero = () => {
       image: "https://images.unsplash.com/photo-1616640045164-deb3b104c4b6?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     },
     {
-      image: "https://media.wired.com/photos/672107771a715d099fb8e041/16:9/w_3840,h_2160,c_limit/Apple-MacBook-Pro-M4-lineup.png",
+      image: "https://img.freepik.com/free-photo/portrait-fabulous-young-woman-wearing-striped-overall-hat-sitting-black-shiny-surface-building_627829-10555.jpg?t=st=1739978314~exp=1739981914~hmac=9c8851a6bb7de5614a4515bad05ceb66771b478f9118cc6e4032d8408f3e04cc&w=1380",
     },
     {
       image: "https://static.nike.com/a/images/w_1920,c_limit/b01bada9-c96a-4ad9-ac83-6a9e51e1107c/what-to-do-if-you-get-a-blood-blister-on-your-toe-according-to-podiatrists.jpg",
