@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import axios from "axios"
-import { ShoppingBag, Heart, Share2, ArrowLeft } from "lucide-react"
+import { ShoppingBag, Heart, Share2, ArrowLeft, Home, ShoppingCart, User } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "react-hot-toast"
 import Footer from "./Footer"
@@ -12,6 +12,7 @@ export default function ProductInfo() {
   const { id } = useParams()
   const navigate = useNavigate()
   const [product, setProduct] = useState(null)
+  const [relatedProducts, setRelatedProducts] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
   const [isFavorite, setIsFavorite] = useState(false)
@@ -23,7 +24,6 @@ export default function ProductInfo() {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/items/products/${id}`)
         setProduct(response.data)
-        
         
         const token = localStorage.getItem("token")
         if (token) {
@@ -38,6 +38,15 @@ export default function ProductInfo() {
             }
           )
           setIsFavorite(wishlistResponse.data.some(item => item._id === id))
+        }
+
+        // Fetch related products based on the current product's category
+        if (response.data.category) {
+          const relatedResponse = await axios.get(`${import.meta.env.VITE_API_URL}/items/products`)
+          const filtered = relatedResponse.data
+            .filter(item => item.category === response.data.category && item._id !== id)
+            .slice(0, 4)
+          setRelatedProducts(filtered)
         }
       } catch (error) {
         console.error("Error fetching product details:", error)
@@ -125,6 +134,11 @@ export default function ProductInfo() {
     setShowShareAlert(true)
     setTimeout(() => setShowShareAlert(false), 3000)
   }
+  
+  const navigateToRelatedProduct = (productId) => {
+    navigate(`/ecommerce-follow-along/product/${productId}`);
+    window.scrollTo(0, 0);
+  }
 
   if (loading) {
     return (
@@ -168,13 +182,41 @@ export default function ProductInfo() {
 
   return (
     <>
+      {/* Improved Floating Navbar */}
+      <motion.div 
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="fixed top-6 left-0 right-0 z-50 flex justify-center"
+      >
+        <div className="bg-white/90 backdrop-blur-md rounded-full shadow-xl px-6 py-3 border border-gray-200">
+          <div className="flex items-center gap-8 sm:gap-12">
+            <NavItem 
+              icon={<Home size={18} />} 
+              label="Home" 
+              onClick={() => navigate('/ecommerce-follow-along/home')} 
+            />
+            <NavItem 
+              icon={<ShoppingCart size={18} />} 
+              label="Cart" 
+              onClick={() => navigate('/ecommerce-follow-along/cart')} 
+            />
+            <NavItem 
+              icon={<User size={18} />} 
+              label="Profile" 
+              onClick={() => navigate('/ecommerce-follow-along/profile')} 
+            />
+          </div>
+        </div>
+      </motion.div>
+
       <AnimatePresence>
         {showShareAlert && (
           <motion.div
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -50 }}
-            className="fixed top-4 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg"
+            className="fixed top-24 right-4 z-50 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg"
           >
             Product link copied to clipboard!
           </motion.div>
@@ -186,7 +228,7 @@ export default function ProductInfo() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16"
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32"
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
             {/* Product Image Section */}
@@ -265,13 +307,22 @@ export default function ProductInfo() {
                 </motion.p>
               </div>
 
+              {/* Product Details (Moved from below) */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
                 className="prose prose-lg text-gray-600"
               >
-                {product.description}
+                <h3 className="text-lg font-semibold text-gray-900">Product Details</h3>
+                <p>{product.description}</p>
+                {product.details &&
+                  Object.entries(product.details).map(([key, value]) => (
+                    <div key={key} className="flex py-1">
+                      <dt className="w-1/3 text-gray-600">{key}:</dt>
+                      <dd className="w-2/3 text-gray-900">{value}</dd>
+                    </div>
+                  ))}
               </motion.div>
 
               <motion.div
@@ -284,7 +335,7 @@ export default function ProductInfo() {
                   <motion.span
                     key={index}
                     whileHover={{ scale: 1.05 }}
-                    className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800 rounded-full"
+                    className="px-4 py-2 text-sm font-medium bg-gray-100 text-gray-800 rounded-lg"
                   >
                     {tag}
                   </motion.span>
@@ -313,30 +364,76 @@ export default function ProductInfo() {
                   {product.inStock ? 'Add to Cart' : 'Out of Stock'}
                 </motion.button>
               </motion.div>
-
-              {/* Additional Product Info */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="border-t pt-8 space-y-4"
-              >
-                <h3 className="text-lg font-semibold">Product Details</h3>
-                <dl className="space-y-4">
-                  {product.details &&
-                    Object.entries(product.details).map(([key, value]) => (
-                      <div key={key} className="flex">
-                        <dt className="w-1/3 text-gray-600">{key}:</dt>
-                        <dd className="w-2/3 text-gray-900">{value}</dd>
-                      </div>
-                    ))}
-                </dl>
-              </motion.div>
             </motion.div>
           </div>
+
+          {/* Related Products Section */}
+          {relatedProducts.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 40 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mt-24"
+            >
+              <h2 className="text-2xl font-bold mb-8">Related Products</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {relatedProducts.map((relatedProduct) => (
+                  <motion.div
+                    key={relatedProduct._id}
+                    whileHover={{ y: -8, transition: { duration: 0.3 } }}
+                    className="bg-white rounded-xl overflow-hidden shadow-md cursor-pointer"
+                    onClick={() => navigateToRelatedProduct(relatedProduct._id)}
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      <img
+                        src={Array.isArray(relatedProduct.imageUrl) ? relatedProduct.imageUrl[0] : relatedProduct.imageUrl}
+                        alt={relatedProduct.name}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <h3 className="font-medium text-gray-900 truncate">{relatedProduct.name}</h3>
+                      <p className="mt-1 text-lg font-semibold">${parseFloat(relatedProduct.price).toFixed(2)}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
         </motion.div>
         <Footer />
       </div>
     </>
   )
 }
+
+// Reusable NavItem component with enhanced hover effects
+const NavItem = ({ icon, label, onClick }) => {
+  return (
+    <motion.div 
+      onClick={onClick}
+      className="relative cursor-pointer group"
+    >
+      <motion.div
+        className="relative z-10 flex items-center gap-2 px-3 py-2 rounded-full transition-all duration-300"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        <span className="text-gray-800 group-hover:text-black transition-colors duration-200">
+          {icon}
+        </span>
+        <span className="text-base font-medium text-gray-800 group-hover:text-black transition-colors duration-200">
+          {label}
+        </span>
+      </motion.div>
+      
+      {/* Hover effect background */}
+      <motion.div
+        className="absolute inset-0 bg-gray-100 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        layoutId={`nav-hover-${label}`}
+        initial={{ opacity: 0 }}
+        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+      />
+    </motion.div>
+  );
+};

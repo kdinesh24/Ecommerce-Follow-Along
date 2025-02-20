@@ -5,6 +5,7 @@ import { ChevronDown } from "lucide-react";
 import Footer from "./Footer";
 import { motion, AnimatePresence } from "framer-motion";
 
+
 export default function Homepage() {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]);

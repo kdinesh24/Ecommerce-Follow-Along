@@ -169,13 +169,13 @@ const Footer = () => {
                     transition={{ delay: 0.4, duration: 0.5 }}
                   >
                     <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.05 }}>
-                      <span className="text-2xl">€</span>
+                      <span className="text-2xl">₹</span>
                       <span>100-day money-back guarantee</span>
                     </motion.div>
 
                     <motion.div className="flex items-center space-x-2" whileHover={{ scale: 1.05 }}>
                       <motion.div
-                        className="w-6 h-6 border border-gray-400 rounded-full flex items-center justify-center"
+                        className="w-6 h-6 border border-gray-400 rounded-full flex items-center justify-center cursor-pointer"
                         whileHover={{ rotate: 360 }}
                         transition={{ duration: 0.5 }}
                       >
@@ -192,9 +192,8 @@ const Footer = () => {
                     transition={{ delay: 0.5, duration: 0.5 }}
                   >
                     <p>
-                      These statements have not been evaluated by the Food and Drug Administration. In the European
-                      Union, the intended use of our products does not fall within the scope or article 2 section 1 of
-                      2017/45 MDR.
+                    At Makers Vault, we celebrate the beauty of handcrafted innovation. Our curated collection brings you exclusive,
+                     high-quality products made by passionate independent makers from around the world.
                     </p>
                   </motion.div>
                 </motion.div>

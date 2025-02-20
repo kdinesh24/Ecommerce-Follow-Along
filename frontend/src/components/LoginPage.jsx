@@ -4,15 +4,18 @@ import axios from "axios"
 import { Eye, EyeOff } from 'lucide-react'
 import LoginOptionsModal from './LoginOptionsModal'
 import { motion, AnimatePresence } from "framer-motion"
+import { useDispatch } from 'react-redux'
+import { setEmail } from '../store/userActions'
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("")
+  const [email, setEmailState] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [tempLoginData, setTempLoginData] = useState(null)
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -51,17 +54,17 @@ const LoginPage = () => {
         withCredentials: true
       })
       
-      if (response.status === 200) {
-       
-        localStorage.setItem('token', response.data.token);
+      if (response.status === 200 && response.data) {
         
+        dispatch(setEmail(email))
+        
+        
+        localStorage.setItem('token', response.data.token)
 
-        
         if (response.data.user.isSeller) {
           setTempLoginData(response.data)
           setIsModalOpen(true)
         } else {
-         
           const userData = {
             ...response.data.user,
             currentRole: 'customer'
@@ -87,7 +90,6 @@ const LoginPage = () => {
         currentRole: role
       }
       localStorage.setItem('userData', JSON.stringify(userData))
-     
       navigate("/ecommerce-follow-along/home")
     }
   }
@@ -105,13 +107,13 @@ const LoginPage = () => {
       transition={{ duration: 0.5 }}
     >
       <AnimatePresence>
-      {isModalOpen && (
-        <LoginOptionsModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSelectRole={handleRoleSelect}
-        />
-      )}
+        {isModalOpen && (
+          <LoginOptionsModal 
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSelectRole={handleRoleSelect}
+          />
+        )}
       </AnimatePresence>
       
       {/* Left Section */}
@@ -180,7 +182,7 @@ const LoginPage = () => {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmailState(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
                 required
                 disabled={isLoading}

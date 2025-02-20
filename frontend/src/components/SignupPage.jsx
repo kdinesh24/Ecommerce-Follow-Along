@@ -1,6 +1,8 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+import { useDispatch } from 'react-redux';
+import { setEmail } from '../store/userActions';
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +14,7 @@ const SignupPage = () => {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -24,9 +27,9 @@ const SignupPage = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError("")
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/users/signup`, formData, {
@@ -34,24 +37,26 @@ const SignupPage = () => {
         headers: {
           'Content-Type': 'application/json'
         }
-      })
+      });
       
       if (response.data.success) {
-        navigate("/ecommerce-follow-along/login")
+        // Dispatch email to Redux store before navigation
+        dispatch(setEmail(formData.email));
+        navigate("/ecommerce-follow-along/login");
       }
     } catch (error) {
-      console.error('Signup error:', error)
+      console.error('Signup error:', error);
       if (error.response?.status === 409) {
-        setError("This email is already registered. Please try logging in instead.")
+        setError("This email is already registered. Please try logging in instead.");
       } else if (error.response?.data?.message) {
-        setError(error.response.data.message)
+        setError(error.response.data.message);
       } else {
-        setError("An error occurred during signup. Please try again.")
+        setError("An error occurred during signup. Please try again.");
       }
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleGoogleSignup = (e) => {
     e.preventDefault()
