@@ -18,7 +18,7 @@ const signup = async (req, res) => {
         const { name, email, password, isSeller } = req.body;
         console.log("Received signup data:", { name, email, password, isSeller });
 
-        // Input validation
+     
         if (!name || !email || !password) {
             return res.status(400).json({ 
                 success: false,
@@ -26,7 +26,7 @@ const signup = async (req, res) => {
             });
         }
 
-        // Email format validation
+       
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({
@@ -35,7 +35,7 @@ const signup = async (req, res) => {
             });
         }
 
-        // Check for existing user
+       
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return res.status(409).json({
@@ -44,10 +44,10 @@ const signup = async (req, res) => {
             });
         }
 
-        // Hash password
+        
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create new user
+     
         const newUser = new User({
             name: name.trim(),
             email: email.toLowerCase(),
@@ -55,10 +55,10 @@ const signup = async (req, res) => {
             isSeller: Boolean(isSeller)
         });
 
-        // Save user
+       
         await newUser.save();
 
-        // Generate JWT token
+       
         const token = jwt.sign(
             { 
                 userId: newUser._id,
@@ -69,7 +69,7 @@ const signup = async (req, res) => {
             { expiresIn: '24h' }
         );
 
-        // Prepare user response (exclude sensitive data)
+       
         const userResponse = {
             _id: newUser._id,
             name: newUser.name,
@@ -79,7 +79,7 @@ const signup = async (req, res) => {
             createdAt: newUser.createdAt
         };
 
-        // Set cookie
+      
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -88,7 +88,7 @@ const signup = async (req, res) => {
             path: '/'
         });
 
-        // Send response
+        
         return res.status(201).json({
             success: true,
             message: 'User created successfully',

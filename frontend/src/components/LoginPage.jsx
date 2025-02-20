@@ -126,7 +126,7 @@ const LoginPage = () => {
         >
           {/* Logo */}
           <motion.div className="mb-8" variants={itemVariants}>
-            <img src="/path-to-your-logo.svg" alt="CubeFactory" className="h-8" />
+            
           </motion.div>
 
           {/* Welcome Text */}

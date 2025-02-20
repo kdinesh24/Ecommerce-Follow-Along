@@ -2,60 +2,15 @@ import { useState, useEffect } from 'react';
 import { User, Search, X, Heart, ShoppingCart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const SearchModal = ({ isOpen, onClose }) => {
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
-        >
-          <motion.div 
-            className="flex items-start justify-center pt-32"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-          >
-            <div className="w-full max-w-2xl mx-4">
-              <motion.div 
-                className="bg-white/20 backdrop-blur-md rounded-xl shadow-xl overflow-hidden border border-white/30"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0.9 }}
-              >
-                <div className="relative p-4">
-                  <input
-                    type="text"
-                    placeholder="Search products..."
-                    className="w-full p-4 pr-12 text-lg border-none outline-none bg-transparent text-white placeholder-white/70"
-                    autoFocus
-                  />
-                  <motion.button 
-                    onClick={onClose}
-                    className="absolute right-6 top-1/2 -translate-y-1/2 text-white/70 hover:text-white"
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <X size={24} />
-                  </motion.button>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-};
+import { useSearch } from './SearchContext';
+import SearchModal from './Search';
 
 const MakersVaultHero = () => {
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [userData, setUserData] = useState(null);
+  const { searchProducts } = useSearch();
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('userData');
@@ -139,7 +94,10 @@ const MakersVaultHero = () => {
 
   return (
     <div className="min-h-screen bg-white p-6 lg:p-8 mb-10 flex flex-col">
-      <SearchModal isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
+      <SearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
       
       <motion.div 
         className="w-full h-[90vh] rounded-[2rem] overflow-hidden relative"
@@ -203,14 +161,7 @@ const MakersVaultHero = () => {
               <Search size={22} />
             </motion.button>
 
-            <motion.button 
-              onClick={() => navigate('/ecommerce-follow-along/wishlist')}
-              className="text-white hover:text-gray-200 transition-colors"
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Heart size={22} />
-            </motion.button>
+
             <motion.button
               onClick={() => navigate('/ecommerce-follow-along/cart')} 
               className="text-white hover:text-gray-200 transition-colors"

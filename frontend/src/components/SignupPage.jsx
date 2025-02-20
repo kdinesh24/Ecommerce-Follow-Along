@@ -68,7 +68,7 @@ const SignupPage = () => {
       {/* Left Section */}
       <div className="w-1/2 p-8 flex flex-col justify-center">
         <div className="max-w-md w-full mx-auto">
-          <img src="/logo.png" alt="Logo" className="h-8 mb-12" />
+          
           <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
           <p className="text-gray-600 mb-8">Please enter your details</p>
 

@@ -32,8 +32,45 @@ const SocialIcon = ({ Icon, href }) => (
   </motion.a>
 )
 
+const PaymentLogo = ({ src, alt }) => (
+  <motion.div
+    className="h-8 w-20 relative"
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+  >
+    <img 
+      src={src}
+      alt={alt}
+      className="h-full w-full object-contain"
+    />
+  </motion.div>
+)
+
 const Footer = () => {
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const paymentMethods = [
+    {
+      name: "PayPal",
+      logo: "https://cdn.prod.website-files.com/671898ae57fbee5bf1da9fba/671b83d3df8f35516fe3654a_Paypal%20Logo%201.svg"
+    },
+    {
+      name: "Visa",
+      logo: "https://cdn.prod.website-files.com/671898ae57fbee5bf1da9fba/671b83d3e35ea2884ff9c21d_Visa%20Inc.%20logo%201.svg"
+    },
+    {
+      name: "American Express",
+      logo: "https://cdn.prod.website-files.com/671898ae57fbee5bf1da9fba/671b83d35c1ff059444f715d_american.svg"
+    },
+    {
+      name: "Apple Pay",
+      logo: "https://cdn.prod.website-files.com/671898ae57fbee5bf1da9fba/671b83d3041007db7bdb4455_Apple%20Pay%20logo%201.svg"
+    },
+    {
+      name: "Google Pay",
+      logo: "https://cdn.prod.website-files.com/671898ae57fbee5bf1da9fba/671b83d3cc6fd600174e2acb_Google%20Pay%20Logo%201.svg"
+    }
+  ]
 
   return (
     <div className="px-4 sm:px-2">
@@ -192,30 +229,27 @@ const Footer = () => {
                     transition={{ delay: 0.5, duration: 0.5 }}
                   >
                     <p>
-                    At Makers Vault, we celebrate the beauty of handcrafted innovation. Our curated collection brings you exclusive,
-                     high-quality products made by passionate independent makers from around the world.
+                      At Makers Vault, we celebrate the beauty of handcrafted innovation. Our curated collection brings you exclusive,
+                      high-quality products made by passionate independent makers from around the world.
                     </p>
                   </motion.div>
                 </motion.div>
 
                 <motion.div
-                  className="mt-8 flex flex-wrap gap-4 items-center justify-center"
+                  className="mt-8 flex flex-wrap gap-6 items-center justify-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                 >
-                  {["PayPal", "Mastercard", "Visa", "American Express", "Klarna"].map((method, index) => (
-                    <motion.img
-                      key={method}
-                      src={`/api/placeholder/80/32`}
-                      alt={method}
-                      className="h-8"
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
+                  {paymentMethods.map((method, index) => (
+                    <motion.div
+                      key={method.name}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.1 * index, duration: 0.3 }}
-                    />
+                    >
+                      <PaymentLogo src={method.logo} alt={`${method.name} logo`} />
+                    </motion.div>
                   ))}
                 </motion.div>
               </motion.div>

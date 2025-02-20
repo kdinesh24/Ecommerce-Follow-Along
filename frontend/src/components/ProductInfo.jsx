@@ -303,7 +303,7 @@ export default function ProductInfo() {
                   transition={{ delay: 0.1 }}
                   className="text-3xl font-semibold text-gray-900"
                 >
-                  ${product.price.toFixed(2)}
+                  ₹{product.price.toFixed(2)}
                 </motion.p>
               </div>
 
@@ -393,7 +393,7 @@ export default function ProductInfo() {
                     </div>
                     <div className="p-4">
                       <h3 className="font-medium text-gray-900 truncate">{relatedProduct.name}</h3>
-                      <p className="mt-1 text-lg font-semibold">${parseFloat(relatedProduct.price).toFixed(2)}</p>
+                      <p className="mt-1 text-lg font-semibold">₹{parseFloat(relatedProduct.price).toFixed(2)}</p>
                     </div>
                   </motion.div>
                 ))}
@@ -407,7 +407,7 @@ export default function ProductInfo() {
   )
 }
 
-// Reusable NavItem component with enhanced hover effects
+
 const NavItem = ({ icon, label, onClick }) => {
   return (
     <motion.div 

@@ -15,7 +15,7 @@ const slideIn = {
   visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
 };
 
-// Mapping for status icons
+
 const statusIcons = {
   pending: { icon: FileText, color: "text-yellow-500", bgColor: "bg-yellow-50" },
   processing: { icon: ShoppingBag, color: "text-blue-500", bgColor: "bg-blue-50" },

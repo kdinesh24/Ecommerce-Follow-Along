@@ -10,10 +10,11 @@ import LifestylePage from "./components/LifestylePage";
 import PerfumesPage from "./components/PerfumesPage";
 import ProductInfo from "./components/ProductInfo";
 import Cart from "./components/Cart";
-import Wishlist from "./components/Wishlist";
 import { Toaster } from 'react-hot-toast';
 import Order from "./components/Order";
 import Payment from "./components/Payment";
+import { SearchProvider } from './components/SearchContext';
+import SearchResults from "./components/SearchResults";
 
 
 function HomeLayout() {
@@ -27,6 +28,7 @@ function HomeLayout() {
 
 function App() {
   return (
+    <SearchProvider>
     <div className="flex-grow">
       <Routes>
         <Route path="/" element={<Navigate to="/ecommerce-follow-along/login" replace />} />
@@ -42,11 +44,12 @@ function App() {
         <Route path="/ecommerce-follow-along/cart" element={<Cart />} />
         <Route path="/ecommerce-follow-along/order" element={<Order />} />
         <Route path="/ecommerce-follow-along/payment" element={<Payment />} />
-        <Route path="/ecommerce-follow-along/wishlist" element={<Wishlist />} /> {/* Add the Wishlist route */}
+        <Route path="/ecommerce-follow-along/search-results" element={<SearchResults />} />
         
       </Routes>
       <Toaster />
     </div>
+    </SearchProvider>
   );
 }
 
