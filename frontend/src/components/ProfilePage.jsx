@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import AddressForm from "./AddressForm"
 import OrderHistory from "./OrderHistory";
+import.meta.env.VITE_API_URL
 
 axios.defaults.withCredentials = true
 
@@ -53,7 +54,7 @@ export default function ProfilePage() {
         throw new Error("No token found")
       }
 
-      const response = await axios.get("http://localhost:3000/users/check-auth", {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/check-auth`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -85,7 +86,7 @@ export default function ProfilePage() {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/users/logout",
+        `${import.meta.env.VITE_API_URL}/users/logout`,
         {},
         {
           withCredentials: true,
@@ -134,7 +135,7 @@ export default function ProfilePage() {
         formDataToSend.append("profilePhoto", formData.profilePhoto)
       }
 
-      const response = await axios.put("http://localhost:3000/users/update-profile", formDataToSend, {
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/users/update-profile`, formDataToSend, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

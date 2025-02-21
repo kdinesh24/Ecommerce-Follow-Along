@@ -23,7 +23,7 @@ export default function PerfumesPage() {
     const [activeSortOption, setActiveSortOption] = useState("featured");
     const [activeNavItem, setActiveNavItem] = useState('');
 
-    // Updated categories and subcategories for perfumes
+   
     const categories = ["all", "men", "women", "unisex"];
     const subcategories = ["all", "eau de parfum", "eau de toilette", "cologne"];
 

@@ -1,20 +1,18 @@
-"use client";
-
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { FileText, ShoppingBag, Package, Truck, CheckCircle, AlertTriangle, ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, XCircle } from "lucide-react";
+import { FileText, ShoppingBag, Package, Truck, CheckCircle, AlertTriangle, 
+         ChevronDown, ChevronUp, Calendar, MapPin, DollarSign, XCircle } from "lucide-react";
 import axios from "axios";
 
 const fadeIn = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.5 } },
+  visible: { opacity: 1, transition: { duration: 0.5 } }
 };
 
 const slideIn = {
   hidden: { y: 20, opacity: 0 },
-  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
 };
-
 
 const statusIcons = {
   pending: { icon: FileText, color: "text-yellow-500", bgColor: "bg-yellow-50" },
@@ -33,6 +31,12 @@ const cancelReasons = [
   { value: 'other', label: 'Other' }
 ];
 
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null;
+  if (imagePath.startsWith('http')) return imagePath;
+  return `${import.meta.env.VITE_API_URL}/${imagePath}`;
+};
+
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -45,19 +49,16 @@ export default function OrderHistory() {
   const [cancelDescription, setCancelDescription] = useState('');
 
   useEffect(() => {
-    const checkUserRole = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:3000/users/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setIsSeller(response.data.isSeller);
-      } catch (error) {
-        console.error('Error checking user role:', error);
-      }
-    };
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setError('Authentication required');
+      setIsLoading(false);
+      return;
+    }
 
-    checkUserRole();
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+    setIsSeller(userInfo.isSeller || false);
+
     fetchOrders();
   }, []);
 
@@ -67,11 +68,9 @@ export default function OrderHistory() {
 
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Not authenticated');
-      }
+      if (!token) throw new Error('Not authenticated');
 
-      const response = await axios.get('http://localhost:3000/api/orders', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orders`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -81,7 +80,7 @@ export default function OrderHistory() {
       setOrders(response.data || []);
     } catch (err) {
       console.error('Error fetching orders:', err);
-      setError('Failed to load order history. Please try again later.');
+      setError(err.response?.data?.message || 'Failed to load order history');
     } finally {
       setIsLoading(false);
     }
@@ -93,9 +92,9 @@ export default function OrderHistory() {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD',
+      currency: 'INR',
       minimumFractionDigits: 2
     }).format(amount);
   };
@@ -115,14 +114,11 @@ export default function OrderHistory() {
         setError('Please provide both reason and description');
         return;
       }
-  
+
       const token = localStorage.getItem('token');
       await axios.post(
-        `http://localhost:3000/api/orders/${selectedOrder}/cancel`,
-        { 
-          cancelReason, 
-          cancelDescription 
-        },
+        `${import.meta.env.VITE_API_URL}/api/orders/${selectedOrder}/cancel`,
+        { cancelReason, cancelDescription },
         { 
           headers: { 
             Authorization: `Bearer ${token}`,
@@ -130,12 +126,12 @@ export default function OrderHistory() {
           } 
         }
       );
-  
+
       setCancelModalOpen(false);
       setSelectedOrder(null);
       setCancelReason('');
       setCancelDescription('');
-      await fetchOrders(); 
+      await fetchOrders();
     } catch (error) {
       console.error('Error cancelling order:', error);
       setError(error.response?.data?.message || 'Error cancelling order');
@@ -146,28 +142,27 @@ export default function OrderHistory() {
     try {
       const token = localStorage.getItem('token');
       await axios.patch(
-        `http://localhost:3000/api/orders/${orderId}/seller-status`,
+        `${import.meta.env.VITE_API_URL}/api/orders/${orderId}/seller-status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      fetchOrders();
+      await fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
+      setError(error.response?.data?.message || 'Error updating order status');
     }
   };
 
-  const renderProgressBar = (order) => {
-    return (
-      <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-        <div
-          className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
-          style={{ width: `${order.progressStatus}%` }}
-        ></div>
-      </div>
-    );
-  };
+  const renderProgressBar = (order) => (
+    <div className="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+      <div
+        className="bg-blue-600 h-2.5 rounded-full transition-all duration-500"
+        style={{ width: `${order.progressStatus}%` }}
+      ></div>
+    </div>
+  );
 
-  const renderOrderActions = (order) => {
+ const renderOrderActions = (order) => {
     if (order.status === 'cancelled') return null;
 
     return (
@@ -184,15 +179,26 @@ export default function OrderHistory() {
           </button>
         )}
 
-        {isSeller && order.status === 'pending' && (
+        {isSeller && order.status !== 'cancelled' && order.status !== 'delivered' && (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              updateOrderStatus(order._id, 'success');
+              const nextStatus = {
+                'pending': 'processing',
+                'processing': 'shipped',
+                'shipped': 'delivered'
+              }[order.status];
+              if (nextStatus) updateOrderStatus(order._id, nextStatus);
             }}
-            className="px-4 py-2 text-sm text-green-600 border border-green-600 rounded-lg hover:bg-green-50"
+            className="px-4 py-2 text-sm text-blue-600 border border-blue-600 rounded-lg hover:bg-blue-50"
           >
-            Mark as Success
+            Mark as {
+              {
+                'pending': 'Processing',
+                'processing': 'Shipped',
+                'shipped': 'Delivered'
+              }[order.status]
+            }
           </button>
         )}
       </div>
@@ -223,21 +229,21 @@ export default function OrderHistory() {
           <textarea
             value={cancelDescription}
             onChange={(e) => setCancelDescription(e.target.value)}
-            placeholder="Additional details (optional)"
+            placeholder="Additional details about cancellation"
             className="w-full p-2 border rounded-lg mb-4 h-24"
           />
 
           <div className="flex justify-end gap-2">
             <button
               onClick={() => setCancelModalOpen(false)}
-              className="px-4 py-2 text-gray-600 border rounded-lg"
+              className="px-4 py-2 text-gray-600 border rounded-lg hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               onClick={submitCancelOrder}
               disabled={!cancelReason}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50"
+              className="px-4 py-2 bg-red-600 text-white rounded-lg disabled:opacity-50 hover:bg-red-700"
             >
               Confirm Cancellation
             </button>
@@ -297,7 +303,7 @@ export default function OrderHistory() {
           <h3 className="text-xl font-medium text-gray-900 mb-2">No orders yet</h3>
           <p className="text-gray-500 mb-6">Your order history will appear here</p>
           <button
-            onClick={() => window.location.href = '/ecommerce-follow-along/home'}
+            onClick={() => window.location.href = '/shop'}
             className="px-6 py-2 text-sm font-medium text-white bg-black rounded-lg hover:bg-gray-800 transition-colors duration-200"
           >
             Start Shopping
@@ -377,16 +383,22 @@ export default function OrderHistory() {
                               <div className="h-16 w-16 bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
                                 {item.product?.images?.length > 0 ? (
                                   <img
-                                    src={`http://localhost:3000/${item.product.images[0]}`}
+                                    src={getImageUrl(item.product.images[0])}
                                     alt={item.product.name}
                                     className="h-full w-full object-cover"
+                                    onError={(e) => {
+                                      e.target.onerror = null;
+                                      e.target.src = "/placeholder-image.jpg";
+                                    }}
                                   />
                                 ) : (
                                   <ShoppingBag className="w-6 h-6 text-gray-400" />
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h5 className="text-sm font-medium text-gray-900">{item.product?.name || "Product Unavailable"}</h5>
+                                <h5 className="text-sm font-medium text-gray-900">
+                                  {item.product?.name || "Product Unavailable"}
+                                </h5>
                                 <p className="text-xs text-gray-500 mt-1">Quantity: {item.quantity}</p>
                               </div>
                               <div className="text-sm font-medium text-gray-900">

@@ -81,7 +81,7 @@ const orderController = {
     try {
       const userId = req.user?._id || req.userId;
       const orders = await Order.find({ user: userId })
-        .populate('products.product')
+        .populate('products.product', 'name price description imageUrl')
         .sort({ orderDate: -1 });
 
       res.json(orders);
