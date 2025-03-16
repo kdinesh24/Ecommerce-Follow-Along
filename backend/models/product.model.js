@@ -34,7 +34,7 @@ const productSchema = new mongoose.Schema({
     required: true,
     get: function(imageUrl) {
       if (imageUrl && !imageUrl.startsWith('http')) {
-        return `http://localhost:3000/uploads/${imageUrl}`;
+        return `${process.env.BACKEND_URL}/uploads/${imageUrl}`;
       }
       return imageUrl;
     }

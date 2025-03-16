@@ -46,11 +46,11 @@ exports.addToCart = async (req, res) => {
         const savedCart = await cart.save();
         console.log('Saved cart:', savedCart);
 
-        // Populate product details before sending response
+       
         const populatedCart = await Cart.findById(cart._id)
             .populate({
                 path: 'items.productId',
-                select: 'name price description imageUrl' // Select specific fields
+                select: 'name price description imageUrl' 
             });
 
         res.status(200).json(populatedCart);
@@ -108,7 +108,7 @@ exports.removeFromCart = async (req, res) => {
         const savedCart = await cart.save();
         console.log('Updated cart after removal:', savedCart);
 
-        // Populate product details before sending response
+        
         const populatedCart = await Cart.findById(cart._id)
             .populate({
                 path: 'items.productId',

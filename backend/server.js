@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -35,19 +35,18 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: false, // set to true if using https
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: false, 
+    maxAge: 24 * 60 * 60 * 1000 
   }
 }));
 
-// Initialize passport and restore authentication state from session
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Initialize passport configuration
+
 require('./config/passport')(app);
 
-// Routes
+
 app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/items', productRoutes);

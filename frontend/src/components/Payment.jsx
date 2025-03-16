@@ -72,7 +72,7 @@ useEffect(() => {
       setLoading(true);
       
       const { data } = await axios.post(
-        "http://localhost:3000/api/pay/checkout",
+        `${import.meta.env.VITE_API_URL}/api/pay/checkout`,
         { total: orderData.total }
       );
   

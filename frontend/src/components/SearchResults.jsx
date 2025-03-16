@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useSearch } from './SearchContext';
-import { ShoppingBag, Heart } from 'lucide-react';
+import { ShoppingBag } from 'lucide-react';
 
 const SearchResults = () => {
   const location = useLocation();
@@ -74,14 +74,9 @@ const SearchResults = () => {
                   <p className="text-gray-600 text-sm mb-2">{product.category}</p>
                   <div className="flex items-center justify-between">
                     <p className="text-xl font-bold text-gray-900">₹{product.price.toFixed(2)}</p>
-                    <div className="flex space-x-2">
-                      <button className="p-2 rounded-full hover:bg-gray-100">
-                        <Heart size={20} className="text-gray-600" />
-                      </button>
-                      <button className="p-2 rounded-full hover:bg-gray-100">
-                        <ShoppingBag size={20} className="text-gray-600" />
-                      </button>
-                    </div>
+                    <button className="p-2 rounded-full hover:bg-gray-100">
+                      <ShoppingBag size={20} className="text-gray-600" />
+                    </button>
                   </div>
                 </div>
               </motion.div>
