@@ -26,7 +26,7 @@ export default function AddressForm() {
     setError(null);
     
     try {
-      const response = await axios.get('http://localhost:3000/users/addresses', {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/users/addresses`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -56,13 +56,13 @@ export default function AddressForm() {
     
     try {
       if (isEditing) {
-        await axios.put(`http://localhost:3000/users/addresses/${editingId}`, currentAddress, {
+        await axios.put(`${import.meta.env.VITE_API_URL}/users/addresses/${editingId}`, currentAddress, {
           headers: {
             Authorization: `Bearer ${token}`
           }
         });
       } else {
-        await axios.post('http://localhost:3000/users/addresses', currentAddress, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/users/addresses`, currentAddress, {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -89,7 +89,7 @@ export default function AddressForm() {
     setError(null);
     
     try {
-      await axios.delete(`http://localhost:3000/users/addresses/${addressId}`, {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/users/addresses/${addressId}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
